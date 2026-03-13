@@ -171,7 +171,7 @@
   /* Desktop: table layout */
   .shot-header {
     display: grid;
-    grid-template-columns: 36px 64px 72px minmax(88px,auto) 76px 110px 68px minmax(100px,auto) 1fr 1fr 72px 44px 56px 64px;
+    grid-template-columns: 36px 64px 72px minmax(88px,auto) 76px 110px 68px minmax(100px,auto) 1fr 1fr 160px 44px 56px 64px;
     gap: 0; padding: 0;
     background: var(--surface); border-bottom: 1px solid var(--border-light);
   }
@@ -183,8 +183,8 @@
 
   .shot-row {
     display: grid;
-    grid-template-columns: 36px 64px 72px minmax(88px,auto) 76px 110px 68px minmax(100px,auto) 1fr 1fr 72px 44px 56px 64px;
-    gap: 0; align-items: center;
+    grid-template-columns: 36px 64px 72px minmax(88px,auto) 76px 110px 68px minmax(100px,auto) 1fr 1fr 160px 44px 56px 64px;
+    gap: 0; align-items: start;
     border-bottom: 1px solid var(--border-light);
     transition: background 0.15s;
     border-left: 3px solid transparent;
@@ -221,9 +221,9 @@
     font-size: 14px;
   }
 
-  /* Reference image cell â 9:16 aspect ratio */
+  /* Reference image cell — 9:16 aspect ratio */
   .ref-cell {
-    width: 100%; aspect-ratio: 9/16; max-height: 120px;
+    width: 100%; aspect-ratio: 9/16; max-height: 280px;
     border: 2px dashed var(--border-light); border-radius: var(--radius-sm);
     display: flex; align-items: center; justify-content: center;
     overflow: hidden; position: relative; cursor: pointer;
@@ -264,7 +264,7 @@
   /* VFX checkbox */
   .vfx-check { accent-color: var(--purple); width: 18px; height: 18px; cursor: pointer; }
 
-  /* Done button â 44px Apple min touch target */
+  /* Done button — 44px Apple min touch target */
   .done-btn {
     width: 44px; height: 44px; border-radius: 50%;
     border: 2px solid var(--border); background: var(--bg);
@@ -316,10 +316,11 @@
   .pdf-mode .tips, .pdf-mode .done-btn, .pdf-mode .vfx-check { display: none !important; }
   .pdf-mode { padding: 10px !important; }
   .pdf-mode .container { padding: 0; }
-  /* Grid: no drag handle, no VFX, no done, no actions â Location & Subject scale, Reference visible */
-  .pdf-mode .shot-row { grid-template-columns: 0 50px 60px minmax(65px,auto) 65px 100px 60px minmax(80px,auto) 1fr 1fr 60px 0 0 0 !important; min-height: 30px; border-left: none !important; }
-  .pdf-mode .shot-header { grid-template-columns: 0 50px 60px minmax(65px,auto) 65px 100px 60px minmax(80px,auto) 1fr 1fr 60px 0 0 0 !important; }
-  .pdf-mode .ref-cell { max-height: 80px; border: 1px solid var(--border-light); cursor: default; }
+  /* Grid: no drag handle, no VFX, no done, no actions — Location & Subject scale, Reference visible */
+  .pdf-mode .shot-row { grid-template-columns: 0 50px 60px minmax(65px,auto) 65px 100px 60px minmax(80px,auto) 1fr 1fr 120px 0 0 0 !important; min-height: 30px; border-left: none !important; align-items: start !important; }
+  .pdf-mode .shot-header { grid-template-columns: 0 50px 60px minmax(65px,auto) 65px 100px 60px minmax(80px,auto) 1fr 1fr 120px 0 0 0 !important; }
+  .pdf-mode .ref-cell { max-height: 200px; border: 1px solid var(--border-light); cursor: default; }
+  .pdf-mode .ref-cell img { object-fit: contain !important; }
   .pdf-mode .ref-cell .ref-placeholder { display: none; }
   .pdf-mode .ref-cell .ref-remove { display: none !important; }
   .pdf-mode .shot-row input, .pdf-mode .shot-row select, .pdf-mode .shot-row textarea {
@@ -500,7 +501,7 @@ function render(){
   let h='';
 
   // PDF header
-  h+='<div class="pdf-header container"><div><div class="pdf-title">'+esc(state.title)+'</div><div style="font-size:13px;color:var(--text2);margin-top:2px">'+esc(state.date)+(state.director?' Â· Dir: '+esc(state.director):'')+(state.dop?' Â· DoP: '+esc(state.dop):'')+'</div></div><div class="pdf-meta">'+done+' / '+total+' shots<br>'+new Date().toLocaleDateString()+'</div></div>';
+  h+='<div class="pdf-header container"><div><div class="pdf-title">'+esc(state.title)+'</div><div style="font-size:13px;color:var(--text2);margin-top:2px">'+esc(state.date)+(state.director?' · Dir: '+esc(state.director):'')+(state.dop?' · DoP: '+esc(state.dop):'')+'</div></div><div class="pdf-meta">'+done+' / '+total+' shots<br>'+new Date().toLocaleDateString()+'</div></div>';
 
   // Header
   h+='<div class="header"><div class="header-inner">';
@@ -623,7 +624,7 @@ function render(){
   });
 
   h+='<button class="btn add-seq" onclick="addSequence()">+ Add Sequence</button>';
-  h+='<div class="tips"><strong>Tips:</strong> Use â² â¼ to reorder shots Â· Click â to mark done (row turns green) Â· "By Location" groups shots for efficient shooting Â· Export JSON to save, Import to reload Â· Export PDF for print Â· On iPhone: Share â Add to Home Screen</div>';
+  h+='<div class="tips"><strong>Tips:</strong> Use ▲ ▼ to reorder shots · Click ✓ to mark done (row turns green) · "By Location" groups shots for efficient shooting · Export JSON to save, Import to reload · Export PDF for print · On iPhone: Share → Add to Home Screen</div>';
   h+='</div>'; // container
 
   document.getElementById('app').innerHTML=h;
