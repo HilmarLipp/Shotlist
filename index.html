@@ -2,9 +2,9 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Shotlist">
 <title>Shotlist</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -12,140 +12,110 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <style>
   :root {
-    --bg: #0a0a0a; --surface: #111; --surface2: #161616; --border: #222;
-    --text: #e0e0e0; --text2: #aaa; --text3: #666; --accent: #f59e0b;
-    --green: #4ade80; --green-bg: rgba(74,222,128,0.08); --purple: #a855f7;
-    --radius: 8px;
-    --safe-bottom: env(safe-area-inset-bottom, 0px);
+    --bg: #ffffff; --surface: #f5f5f7; --surface2: #fafafa;
+    --border: #d2d2d7; --border-light: #e8e8ed;
+    --text: #1d1d1f; --text2: #6e6e73; --text3: #86868b;
+    --accent: #0071e3; --accent-hover: #0077ed;
+    --green: #34c759; --green-bg: rgba(52,199,89,0.08); --green-border: rgba(52,199,89,0.4);
+    --orange: #ff9f0a; --purple: #af52de; --red: #ff3b30;
+    --radius: 12px; --radius-sm: 8px; --space: 8px;
   }
   * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
-  html, body { background:var(--bg); color:var(--text); font-family:'Asap',sans-serif; min-height:100vh; overflow-x:hidden; }
-  input, select, textarea, button { font-family:'Asap',sans-serif; }
-
-  /* Scrollbar */
-  ::-webkit-scrollbar { width:6px; height:6px; }
-  ::-webkit-scrollbar-track { background:var(--bg); }
-  ::-webkit-scrollbar-thumb { background:#333; border-radius:3px; }
-
-  /* Header */
-  .header { padding:16px; display:flex; flex-direction:column; gap:8px; position:sticky; top:0; z-index:100; background:var(--bg); border-bottom:1px solid var(--border); }
-  .header-top { display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; }
-  .project-title { font-size:22px; font-weight:700; background:none; border:none; color:#fff; padding:0; outline:none; width:100%; max-width:300px; }
-  .meta-row { display:flex; gap:12px; flex-wrap:wrap; align-items:center; }
-  .meta-label { font-size:11px; color:var(--text3); display:flex; align-items:center; gap:4px; }
-  .meta-input { background:var(--surface); border:1px solid var(--border); color:var(--text2); padding:4px 8px; border-radius:4px; font-size:12px; width:100px; }
-  .meta-input[type="date"] { width:130px; }
-
-  /* Progress */
-  .progress-wrap { display:flex; align-items:center; gap:10px; }
-  .progress-text { font-size:12px; color:var(--text3); white-space:nowrap; }
-  .progress-text strong { color:var(--green); font-size:16px; }
-  .progress-bar { width:120px; height:5px; background:#222; border-radius:3px; overflow:hidden; flex-shrink:0; }
-  .progress-fill { height:100%; border-radius:3px; transition:width 0.3s; }
-
-  /* Toolbar */
-  .toolbar { display:flex; gap:6px; padding:8px 16px; overflow-x:auto; -webkit-overflow-scrolling:touch; flex-wrap:nowrap; }
-  .toolbar::-webkit-scrollbar { display:none; }
-  .btn { padding:7px 14px; font-size:12px; font-weight:600; background:var(--surface); color:var(--text2); border:1px solid var(--border); border-radius:6px; cursor:pointer; white-space:nowrap; flex-shrink:0; }
-  .btn:active { background:#222; }
-  .btn-group { display:flex; background:var(--surface); border-radius:6px; border:1px solid var(--border); overflow:hidden; flex-shrink:0; }
-  .btn-tab { padding:7px 10px; font-size:11px; font-weight:600; background:transparent; color:var(--text3); border:none; cursor:pointer; white-space:nowrap; }
-  .btn-tab.active { background:#333; color:#fff; }
-  .filter-select { background:var(--surface); border:1px solid var(--border); color:var(--text2); padding:7px 10px; border-radius:6px; font-size:12px; flex-shrink:0; }
-
-  /* Sequence */
-  .seq-wrap { margin:12px 8px; }
-  .seq-header { display:flex; align-items:center; gap:8px; padding:10px 12px; background:var(--surface); border-radius:var(--radius) var(--radius) 0 0; border:1px solid var(--border); border-bottom:none; }
-  .seq-badge { color:var(--accent); font-weight:700; font-size:12px; flex-shrink:0; }
-  .seq-name { font-size:14px; font-weight:600; background:none; border:none; color:#fff; padding:2px 6px; outline:none; flex:1; min-width:0; text-align:left; }
-  .seq-stats { font-size:11px; color:var(--text3); flex-shrink:0; }
-  .seq-del { background:none; border:none; color:#444; cursor:pointer; font-size:14px; padding:4px; flex-shrink:0; }
-
-  /* Shot rows */
-  .shots-table { border:1px solid var(--border); border-radius:0 0 var(--radius) var(--radius); overflow:hidden; }
-  .shot-row { display:flex; flex-wrap:wrap; padding:8px 10px; gap:6px 8px; border-bottom:1px solid #1a1a1a; align-items:flex-start; position:relative; transition:background 0.15s; border-left:3px solid transparent; }
+  html, body { background:var(--bg); color:var(--text); font-family:'Asap',-apple-system,'SF Pro Text','Helvetica Neue',sans-serif; font-size:17px; line-height:1.47; min-height:100vh; -webkit-font-smoothing:antialiased; }
+  input, select, textarea, button { font-family:inherit; font-size:inherit; }
+  ::-webkit-scrollbar { width:8px; height:8px; }
+  ::-webkit-scrollbar-track { background:transparent; }
+  ::-webkit-scrollbar-thumb { background:var(--border); border-radius:4px; }
+  ::-webkit-scrollbar-thumb:hover { background:var(--text3); }
+  .container { max-width:1440px; margin:0 auto; padding:0 24px; }
+  .header { position:sticky; top:0; z-index:100; background:rgba(255,255,255,0.85); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); border-bottom:1px solid var(--border-light); padding:16px 24px; }
+  .header-inner { max-width:1440px; margin:0 auto; }
+  .header-top { display:flex; justify-content:space-between; align-items:center; gap:16px; flex-wrap:wrap; }
+  .project-title { font-size:28px; font-weight:700; letter-spacing:-0.5px; background:none; border:none; color:var(--text); padding:0; outline:none; width:320px; }
+  .project-title::placeholder { color:var(--border); }
+  .meta-row { display:flex; gap:20px; flex-wrap:wrap; align-items:center; margin-top:10px; }
+  .meta-label { font-size:13px; font-weight:600; color:var(--text3); display:flex; align-items:center; gap:6px; }
+  .meta-input { background:var(--surface); border:1px solid var(--border-light); color:var(--text); padding:6px 10px; border-radius:var(--radius-sm); font-size:14px; font-weight:500; width:120px; transition:border-color 0.2s; }
+  .meta-input:focus { border-color:var(--accent); outline:none; box-shadow:0 0 0 3px rgba(0,113,227,0.1); }
+  .meta-input[type="date"] { width:150px; }
+  .progress-wrap { display:flex; align-items:center; gap:12px; }
+  .progress-text { font-size:15px; color:var(--text2); white-space:nowrap; font-weight:500; }
+  .progress-text strong { color:var(--green); font-size:22px; font-weight:700; }
+  .progress-bar { width:140px; height:6px; background:var(--surface); border-radius:3px; overflow:hidden; }
+  .progress-fill { height:100%; border-radius:3px; transition:width 0.4s ease; }
+  .toolbar { display:flex; gap:8px; padding:12px 24px; align-items:center; flex-wrap:wrap; max-width:1440px; margin:0 auto; border-bottom:1px solid var(--border-light); }
+  .btn { padding:8px 18px; font-size:14px; font-weight:600; background:var(--surface); color:var(--text2); border:1px solid var(--border-light); border-radius:var(--radius-sm); cursor:pointer; white-space:nowrap; transition:all 0.15s; min-height:36px; }
+  .btn:hover { background:var(--border-light); color:var(--text); }
+  .btn:active { transform:scale(0.98); }
+  .btn-group { display:flex; background:var(--surface); border-radius:var(--radius-sm); border:1px solid var(--border-light); overflow:hidden; }
+  .btn-tab { padding:8px 16px; font-size:14px; font-weight:600; background:transparent; color:var(--text3); border:none; cursor:pointer; white-space:nowrap; transition:all 0.15s; }
+  .btn-tab:hover { color:var(--text2); }
+  .btn-tab.active { background:var(--bg); color:var(--text); box-shadow:0 1px 3px rgba(0,0,0,0.08); }
+  .filter-select { background:var(--surface); border:1px solid var(--border-light); color:var(--text); padding:8px 12px; border-radius:var(--radius-sm); font-size:14px; font-weight:500; cursor:pointer; min-height:36px; }
+  .filter-select:focus { border-color:var(--accent); outline:none; }
+  .spacer { flex:1; }
+  .seq-wrap { margin:16px 0; }
+  .container .seq-wrap:first-of-type { margin-top:20px; }
+  .seq-header { display:flex; align-items:center; gap:10px; padding:12px 16px; background:var(--surface); border:1px solid var(--border-light); border-radius:var(--radius) var(--radius) 0 0; }
+  .seq-badge { background:var(--accent); color:#fff; font-size:11px; font-weight:700; letter-spacing:0.5px; padding:3px 10px; border-radius:20px; flex-shrink:0; }
+  .seq-name { font-size:17px; font-weight:700; background:none; border:none; color:var(--text); padding:2px 8px; outline:none; flex:1; min-width:0; text-align:left; }
+  .seq-stats { font-size:13px; color:var(--text3); font-weight:500; flex-shrink:0; }
+  .seq-del { background:none; border:none; color:var(--border); cursor:pointer; font-size:16px; padding:4px 8px; border-radius:4px; transition:color 0.15s; }
+  .seq-del:hover { color:var(--red); }
+  .shots-table { border:1px solid var(--border-light); border-top:none; border-radius:0 0 var(--radius) var(--radius); overflow:hidden; }
+  .shot-header { display:grid; grid-template-columns:36px 64px 72px 88px 76px 110px 68px 100px 1fr 1fr 44px 56px 64px; gap:0; padding:0; background:var(--surface); border-bottom:1px solid var(--border-light); }
+  .shot-header span { font-size:11px; font-weight:700; color:var(--text3); text-transform:uppercase; letter-spacing:0.5px; padding:10px 8px; white-space:nowrap; }
+  .shot-row { display:grid; grid-template-columns:36px 64px 72px 88px 76px 110px 68px 100px 1fr 1fr 44px 56px 64px; gap:0; align-items:center; border-bottom:1px solid var(--border-light); transition:background 0.15s; border-left:3px solid transparent; min-height:52px; }
   .shot-row:last-child { border-bottom:none; }
-  .shot-row.even { background:var(--surface); }
-  .shot-row.odd { background:var(--surface2); }
+  .shot-row:nth-child(even) { background:var(--surface2); }
+  .shot-row:hover { background:rgba(0,113,227,0.03); }
   .shot-row.done { background:var(--green-bg); border-left-color:var(--green); }
-  .shot-row.drag-over { box-shadow:inset 0 2px 0 var(--accent); }
-
-  /* Shot fields */
-  .field-row-top { display:flex; gap:6px; width:100%; align-items:center; flex-wrap:wrap; }
-  .field-row-bottom { display:flex; gap:6px; width:100%; flex-wrap:wrap; }
-  .field { display:flex; flex-direction:column; gap:2px; }
-  .field label { font-size:9px; color:var(--text3); text-transform:uppercase; letter-spacing:0.5px; font-weight:600; }
-  .field input, .field select { background:transparent; border:1px solid transparent; color:var(--text); padding:4px 6px; border-radius:3px; font-size:13px; }
-  .field input:focus, .field select:focus, .field textarea:focus { border-color:var(--text3); outline:none; }
-  .field select { color:var(--text2); }
-  .field textarea { background:transparent; border:1px solid transparent; color:var(--text); padding:4px 6px; border-radius:3px; font-size:13px; resize:vertical; min-height:34px; width:100%; }
-  .field-shot { width:50px; }
-  .field-ie { width:65px; }
-  .field-loc { width:70px; }
-  .field-size { width:65px; }
-  .field-angle { width:90px; }
-  .field-audio { width:60px; }
-  .field-subject { width:80px; }
-  .field-desc { flex:2; min-width:150px; }
-  .field-dial { flex:1; min-width:120px; }
-
-  /* Controls */
-  .row-controls { display:flex; gap:2px; align-items:center; margin-left:auto; flex-shrink:0; }
-  .ctrl-btn { width:32px; height:32px; display:flex; align-items:center; justify-content:center; background:none; border:1px solid transparent; color:var(--text3); cursor:pointer; border-radius:4px; font-size:14px; flex-shrink:0; }
-  .ctrl-btn:active { background:#222; }
-  .done-btn { width:38px; height:38px; border-radius:50%; border:2px solid #444; background:transparent; color:var(--text3); font-size:16px; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 0.15s; flex-shrink:0; }
-  .done-btn.checked { border-color:var(--green); background:var(--green); color:#000; }
-  .vfx-check { accent-color:var(--purple); width:18px; height:18px; }
-
-  /* Move buttons */
-  .move-btn { width:28px; height:28px; display:flex; align-items:center; justify-content:center; background:var(--surface); border:1px solid var(--border); color:var(--text3); cursor:pointer; border-radius:4px; font-size:12px; }
-  .move-btn:active { background:#333; color:#fff; }
-
-  /* Add shot */
-  .add-shot { width:100%; padding:8px; font-size:12px; background:transparent; color:var(--text3); border:1px dashed var(--border); border-top:none; border-radius:0 0 var(--radius) var(--radius); cursor:pointer; }
-  .add-shot:active { color:var(--text2); background:#111; }
-
-  /* Modal */
-  .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:999; display:flex; align-items:center; justify-content:center; padding:20px; }
-  .modal { background:#1a1a1a; border:1px solid var(--border); border-radius:12px; padding:20px; max-width:400px; width:100%; }
-  .modal h3 { font-size:16px; margin-bottom:12px; }
-  .modal-btns { display:flex; gap:8px; margin-top:16px; }
-  .modal-btn { flex:1; padding:10px; border-radius:8px; border:1px solid var(--border); background:var(--surface); color:var(--text); font-size:14px; font-weight:600; cursor:pointer; text-align:center; }
-  .modal-btn.primary { background:var(--accent); color:#000; border-color:var(--accent); }
-
-  /* PDF specific */
-  .pdf-mode .header, .pdf-mode .toolbar, .pdf-mode .row-controls, .pdf-mode .add-shot, .pdf-mode .add-seq, .pdf-mode .seq-del, .pdf-mode .tips { display:none !important; }
-  .pdf-mode .shot-row { border-left-width:2px !important; }
-  .pdf-mode { background:#fff !important; color:#111 !important; padding:10px !important; }
-  .pdf-mode .seq-wrap { margin:6px 0 !important; }
-  .pdf-mode .seq-header { background:#f5f5f5 !important; border-color:#ddd !important; }
-  .pdf-mode .seq-badge { color:#b45309 !important; }
-  .pdf-mode .seq-name { color:#111 !important; }
-  .pdf-mode .seq-stats { color:#888 !important; }
-  .pdf-mode .shots-table { border-color:#ddd !important; }
-  .pdf-mode .shot-row { background:#fff !important; border-bottom-color:#eee !important; }
-  .pdf-mode .shot-row.done { background:#f0fdf4 !important; border-left-color:var(--green) !important; }
-  .pdf-mode .field label { color:#888 !important; }
-  .pdf-mode .field input, .pdf-mode .field select, .pdf-mode .field textarea { color:#111 !important; border-color:transparent !important; padding:2px 4px !important; font-size:11px !important; }
-  .pdf-mode .pdf-header { display:flex !important; justify-content:space-between; align-items:flex-start; padding:10px 12px; margin-bottom:8px; border-bottom:2px solid #111; }
-  .pdf-header { display:none; }
-  .pdf-mode .pdf-title { font-size:20px; font-weight:700; color:#111; }
-  .pdf-mode .pdf-meta { font-size:11px; color:#666; text-align:right; }
-
-  /* Tips */
-  .tips { margin:12px 16px; padding:10px 14px; background:var(--surface); border-radius:var(--radius); border:1px solid var(--border); font-size:11px; color:var(--text3); }
+  .shot-row.done:hover { background:rgba(52,199,89,0.12); }
+  .shot-row .cell { padding:6px 8px; font-size:15px; min-height:44px; display:flex; align-items:center; }
+  .shot-row input[type="text"], .shot-row select, .shot-row textarea { width:100%; background:transparent; border:1px solid transparent; color:var(--text); padding:6px 8px; border-radius:6px; font-size:15px; transition:border-color 0.15s, box-shadow 0.15s; }
+  .shot-row input[type="text"]:focus, .shot-row select:focus, .shot-row textarea:focus { border-color:var(--accent); outline:none; box-shadow:0 0 0 3px rgba(0,113,227,0.1); background:var(--bg); }
+  .shot-row select { color:var(--text2); cursor:pointer; padding-right:4px; }
+  .shot-row textarea { resize:vertical; min-height:40px; line-height:1.4; font-size:14px; }
+  .drag-handle { display:flex; align-items:center; justify-content:center; padding:4px 6px; cursor:grab; color:var(--border); font-size:18px; user-select:none; -webkit-user-select:none; touch-action:none; min-height:44px; }
+  .drag-handle:hover { color:var(--text3); }
+  .drag-handle:active { cursor:grabbing; }
+  .shot-row.dragging { opacity:0.4; background:var(--surface); }
+  .shot-row.drag-over { box-shadow:inset 0 -3px 0 var(--accent); }
+  .vfx-check { accent-color:var(--purple); width:18px; height:18px; cursor:pointer; }
+  .done-btn { width:44px; height:44px; border-radius:50%; border:2px solid var(--border); background:var(--bg); color:transparent; font-size:18px; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 0.2s; flex-shrink:0; }
+  .done-btn:hover { border-color:var(--green); }
+  .done-btn.checked { border-color:var(--green); background:var(--green); color:#fff; box-shadow:0 2px 8px rgba(52,199,89,0.3); }
+  .row-actions { display:flex; gap:2px; padding:4px; }
+  .act-btn { width:28px; height:28px; display:flex; align-items:center; justify-content:center; background:none; border:1px solid transparent; color:var(--border); cursor:pointer; border-radius:5px; font-size:14px; transition:all 0.15s; }
+  .act-btn:hover { color:var(--text3); background:var(--surface); }
+  .act-btn.del:hover { color:var(--red); }
+  .add-shot { width:100%; padding:10px; font-size:14px; font-weight:600; background:var(--bg); color:var(--text3); border:1px dashed var(--border-light); border-top:none; border-radius:0 0 var(--radius) var(--radius); cursor:pointer; transition:all 0.15s; }
+  .add-shot:hover { color:var(--accent); background:rgba(0,113,227,0.02); }
+  .add-seq { display:block; margin:8px 0 32px; }
+  .tips { margin:24px 0 40px; padding:14px 18px; background:var(--surface); border-radius:var(--radius); border:1px solid var(--border-light); font-size:13px; color:var(--text3); line-height:1.6; }
   .tips strong { color:var(--text2); }
-
-  /* Add sequence */
-  .add-seq { display:block; margin:0 8px 20px; }
-
-  /* Responsive */
-  @media (max-width: 600px) {
-    .project-title { font-size:18px; max-width:200px; }
-    .field-desc, .field-dial { min-width:100%; }
-    .progress-bar { width:80px; }
-    .meta-input { width:80px; }
+  .pdf-mode .header, .pdf-mode .toolbar, .pdf-mode .row-actions, .pdf-mode .move-col, .pdf-mode .add-shot, .pdf-mode .add-seq, .pdf-mode .tips { display:none !important; }
+  .pdf-mode { padding:10px !important; }
+  .pdf-mode .container { padding:0; }
+  .pdf-mode .shot-row { grid-template-columns:50px 60px 75px 65px 100px 60px 90px 1fr 1fr 36px 0 0 !important; min-height:36px; }
+  .pdf-mode .shot-header { grid-template-columns:50px 60px 75px 65px 100px 60px 90px 1fr 1fr 36px 0 0 !important; }
+  .pdf-mode .shot-row input, .pdf-mode .shot-row select, .pdf-mode .shot-row textarea { font-size:11px !important; padding:2px 4px !important; }
+  .pdf-mode .shot-header span { font-size:9px !important; padding:6px 4px !important; }
+  .pdf-mode .seq-header { padding:8px 12px; }
+  .pdf-mode .seq-wrap { margin:8px 0; }
+  .pdf-mode .pdf-header { display:flex !important; justify-content:space-between; align-items:flex-start; padding:12px 0; margin-bottom:8px; border-bottom:2px solid var(--text); }
+  .pdf-header { display:none; }
+  .pdf-mode .pdf-title { font-size:22px; font-weight:700; }
+  .pdf-mode .pdf-meta { font-size:12px; color:var(--text2); text-align:right; }
+  @media (max-width:1024px) {
+    .shot-header { display:none; }
+    .shot-row { display:flex; flex-wrap:wrap; gap:6px 10px; padding:10px 12px; grid-template-columns:unset; }
+    .shot-row .cell { min-height:auto; padding:2px 0; }
+    .shot-row .cell-desc, .shot-row .cell-dial { width:100%; }
+    .shot-row .cell-desc textarea, .shot-row .cell-dial textarea { width:100%; }
+    .shot-row label.mobile-label { display:block; font-size:10px; font-weight:600; color:var(--text3); text-transform:uppercase; letter-spacing:0.3px; margin-bottom:2px; }
   }
+  @media (min-width:1025px) { .mobile-label { display:none !important; } }
 </style>
 </head>
 <body>
@@ -190,244 +160,234 @@ const SAMPLE = {
 let state = JSON.parse(JSON.stringify(SAMPLE));
 let filterLoc = "";
 let viewMode = "script";
-let showImportModal = false;
 
 function gid(){ return 'id-'+Math.random().toString(36).slice(2,9); }
-
-function save(){ try{ localStorage.setItem('shotlist_data', JSON.stringify(state)); }catch(e){} }
-function load(){ try{ const d=localStorage.getItem('shotlist_data'); if(d){ state=JSON.parse(d); } }catch(e){} }
-
+function save(){ try{ localStorage.setItem('shotlist_v2', JSON.stringify(state)); }catch(e){} }
+function load(){ try{ const d=localStorage.getItem('shotlist_v2'); if(d){ state=JSON.parse(d); } }catch(e){} }
 function getAllShots(){ return state.sequences.flatMap(s=>s.shots); }
-function getLocations(){ return [...new Set(getAllShots().map(s=>s.location).filter(Boolean))]; }
+function getLocations(){ return [...new Set(getAllShots().map(s=>s.location).filter(Boolean))].sort(); }
 
-function moveShot(seqIdx, shotIdx, dir){
-  const shots = state.sequences[seqIdx].shots;
-  const newIdx = shotIdx + dir;
-  if(newIdx < 0 || newIdx >= shots.length) return;
-  [shots[shotIdx], shots[newIdx]] = [shots[newIdx], shots[shotIdx]];
+function moveShot(si,oi,dir){
+  const shots=state.sequences[si].shots; const ni=oi+dir;
+  if(ni<0||ni>=shots.length) return;
+  [shots[oi],shots[ni]]=[shots[ni],shots[oi]];
   save(); render();
 }
+function toggleDone(si,oi){ state.sequences[si].shots[oi].done=!state.sequences[si].shots[oi].done; save(); render(); }
+function updateField(si,oi,f,v){ state.sequences[si].shots[oi][f]=v; save(); }
+function updateMeta(f,v){ state[f]=v; save(); }
+function updateSeqName(si,v){ state.sequences[si].name=v; save(); }
 
-function toggleDone(seqIdx, shotIdx){
-  state.sequences[seqIdx].shots[shotIdx].done = !state.sequences[seqIdx].shots[shotIdx].done;
-  save(); render();
-}
-
-function updateField(seqIdx, shotIdx, field, val){
-  state.sequences[seqIdx].shots[shotIdx][field] = val;
-  save();
-}
-
-function updateMeta(field, val){ state[field]=val; save(); }
-function updateSeqName(seqIdx, val){ state.sequences[seqIdx].name=val; save(); }
-
-function addShot(seqIdx){
-  const seq = state.sequences[seqIdx];
-  const lastNum = seq.shots.length > 0 ? seq.shots[seq.shots.length-1].shotNum : "00";
-  const next = String(parseInt(lastNum)+1||seq.shots.length+1).padStart(2,'0');
+function addShot(si){
+  const seq=state.sequences[si];
+  const last=seq.shots.length>0?seq.shots[seq.shots.length-1].shotNum:"00";
+  const next=String(parseInt(last)+1||seq.shots.length+1).padStart(2,'0');
   seq.shots.push({id:gid(),shotNum:next,intExt:"INT",location:"",shotSize:"MS",shotAngle:"Eye Level",audio:"Sync",subject:"",description:"",dialogue:"",done:false,vfx:false});
   save(); render();
 }
-
-function deleteShot(seqIdx, shotIdx){
-  state.sequences[seqIdx].shots.splice(shotIdx,1);
+function deleteShot(si,oi){ state.sequences[si].shots.splice(oi,1); save(); render(); }
+function dupShot(si,oi){
+  const o=state.sequences[si].shots[oi];
+  state.sequences[si].shots.splice(oi+1,0,{...o,id:gid(),shotNum:o.shotNum+'A',done:false});
   save(); render();
 }
-
-function dupShot(seqIdx, shotIdx){
-  const orig = state.sequences[seqIdx].shots[shotIdx];
-  const dup = {...orig, id:gid(), shotNum:orig.shotNum+'A', done:false};
-  state.sequences[seqIdx].shots.splice(shotIdx+1,0,dup);
-  save(); render();
-}
-
 function addSequence(){
-  state.sequences.push({id:gid(), name:'Sequence '+(state.sequences.length+1), shots:[{id:gid(),shotNum:'01',intExt:'INT',location:'',shotSize:'MS',shotAngle:'Eye Level',audio:'Sync',subject:'',description:'',dialogue:'',done:false,vfx:false}]});
+  state.sequences.push({id:gid(),name:'Sequence '+(state.sequences.length+1),shots:[{id:gid(),shotNum:'01',intExt:'INT',location:'',shotSize:'MS',shotAngle:'Eye Level',audio:'Sync',subject:'',description:'',dialogue:'',done:false,vfx:false}]});
   save(); render();
 }
-
-function deleteSequence(seqIdx){
-  if(state.sequences.length<=1) return;
-  state.sequences.splice(seqIdx,1);
-  save(); render();
-}
+function deleteSequence(si){ if(state.sequences.length<=1) return; state.sequences.splice(si,1); save(); render(); }
 
 function exportJSON(){
-  const blob = new Blob([JSON.stringify(state,null,2)],{type:'application/json'});
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = (state.title||'shotlist').replace(/\s+/g,'_')+'.json';
+  const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+  a.download=(state.title||'shotlist').replace(/\s+/g,'_')+'.json';
   a.click(); URL.revokeObjectURL(a.href);
 }
-
 function importJSON(){
-  const input = document.createElement('input');
-  input.type='file'; input.accept='.json';
-  input.onchange = e => {
-    const f = e.target.files[0]; if(!f) return;
-    const r = new FileReader();
-    r.onload = ev => {
-      try{
-        state = JSON.parse(ev.target.result);
-        save(); render();
-      }catch(err){ alert('Invalid JSON file'); }
-    };
+  const inp=document.createElement('input'); inp.type='file'; inp.accept='.json';
+  inp.onchange=e=>{const f=e.target.files[0]; if(!f) return;
+    const r=new FileReader(); r.onload=ev=>{try{state=JSON.parse(ev.target.result);save();render();}catch(err){alert('Invalid JSON');}};
     r.readAsText(f);
-  };
-  input.click();
+  }; inp.click();
 }
-
 function exportPDF(){
-  const app = document.getElementById('app');
-  app.classList.add('pdf-mode');
-  const opt = {
-    margin: [8,8,8,8],
-    filename: (state.title||'shotlist').replace(/\s+/g,'_')+'.pdf',
-    image: {type:'jpeg', quality:0.95},
-    html2canvas: {scale:2, useCORS:true, backgroundColor:'#ffffff'},
-    jsPDF: {unit:'mm', format:'a4', orientation:'landscape'}
-  };
-  html2pdf().set(opt).from(app).save().then(()=>{
-    app.classList.remove('pdf-mode');
-  });
+  const app=document.getElementById('app'); app.classList.add('pdf-mode');
+  html2pdf().set({
+    margin:[8,8,8,8], filename:(state.title||'shotlist').replace(/\s+/g,'_')+'.pdf',
+    image:{type:'jpeg',quality:0.95}, html2canvas:{scale:2,useCORS:true,backgroundColor:'#ffffff'},
+    jsPDF:{unit:'mm',format:'a4',orientation:'landscape'}
+  }).from(app).save().then(()=>{ app.classList.remove('pdf-mode'); });
 }
+function resetData(){ if(confirm('Reset to sample data?')){state=JSON.parse(JSON.stringify(SAMPLE));save();render();} }
 
-function resetData(){
-  if(confirm('Reset to sample data? This cannot be undone.')){
-    state = JSON.parse(JSON.stringify(SAMPLE));
-    save(); render();
-  }
+function makeOpts(arr,sel){
+  return arr.map(o=>'<option value="'+o+'"'+(o===sel?' selected':'')+'>'+( o||'\u2014')+'</option>').join('');
 }
-
-function makeOpts(arr){
-  return arr.map(o=>'<option value="'+o+'">'+(o||'—')+'</option>').join('');
-}
-
-function render(){
-  const all = getAllShots();
-  const total = all.length;
-  const done = all.filter(s=>s.done).length;
-  const pct = total>0 ? (done/total*100) : 0;
-  const locs = getLocations();
-
-  let html = '';
-
-  // PDF header (hidden normally)
-  html += '<div class="pdf-header"><div><div class="pdf-title">'+esc(state.title)+'</div><div style="font-size:12px;color:#888;margin-top:2px;">'+esc(state.date)+(state.director?' &middot; Dir: '+esc(state.director):'')+(state.dop?' &middot; DoP: '+esc(state.dop):'')+'</div></div><div class="pdf-meta">'+done+' / '+total+' shots done<br>'+new Date().toLocaleDateString()+'</div></div>';
-
-  // Header
-  html += '<div class="header">';
-  html += '<div class="header-top">';
-  html += '<input class="project-title" value="'+esc(state.title)+'" placeholder="Project Title" onchange="updateMeta(\'title\',this.value);render()">';
-  html += '<div class="progress-wrap"><span class="progress-text"><strong>'+done+'</strong> / '+total+'</span><div class="progress-bar"><div class="progress-fill" style="width:'+pct+'%;background:'+(pct===100?'var(--green)':'var(--accent)')+'"></div></div></div>';
-  html += '</div>';
-  html += '<div class="meta-row">';
-  html += '<span class="meta-label">Date <input type="date" class="meta-input" value="'+esc(state.date)+'" onchange="updateMeta(\'date\',this.value)"></span>';
-  html += '<span class="meta-label">Director <input class="meta-input" value="'+esc(state.director)+'" placeholder="—" onchange="updateMeta(\'director\',this.value)"></span>';
-  html += '<span class="meta-label">DoP <input class="meta-input" value="'+esc(state.dop)+'" placeholder="—" onchange="updateMeta(\'dop\',this.value)"></span>';
-  html += '</div>';
-  html += '</div>';
-
-  // Toolbar
-  html += '<div class="toolbar">';
-  html += '<select class="filter-select" onchange="filterLoc=this.value;render()"><option value="">All Locations</option>';
-  locs.forEach(l=>{ html+='<option value="'+esc(l)+'"'+(filterLoc===l?' selected':'')+'>'+esc(l)+'</option>'; });
-  html += '</select>';
-  html += '<div class="btn-group">';
-  ['script','location','status'].forEach(m=>{
-    const labels = {script:'Script',location:'By Location',status:'By Status'};
-    html += '<button class="btn-tab'+(viewMode===m?' active':'')+'" onclick="viewMode=\''+m+'\';render()">'+labels[m]+'</button>';
-  });
-  html += '</div>';
-  html += '<button class="btn" onclick="importJSON()">Import</button>';
-  html += '<button class="btn" onclick="exportJSON()">Export JSON</button>';
-  html += '<button class="btn" onclick="exportPDF()">Export PDF</button>';
-  html += '<button class="btn" onclick="resetData()">Reset</button>';
-  html += '</div>';
-
-  // Sequences
-  state.sequences.forEach((seq, si)=>{
-    let shots = seq.shots.map((sh,i)=>({...sh,_oi:i}));
-    if(filterLoc) shots = shots.filter(s=>s.location===filterLoc);
-    if(viewMode==='location') shots.sort((a,b)=>a.location.localeCompare(b.location));
-    else if(viewMode==='status') shots.sort((a,b)=>a.done===b.done?0:a.done?1:-1);
-    const seqDone = seq.shots.filter(s=>s.done).length;
-
-    html += '<div class="seq-wrap">';
-
-    // Seq header
-    html += '<div class="seq-header">';
-    html += '<span class="seq-badge">SEQ '+(si+1)+'</span>';
-    html += '<input class="seq-name" value="'+esc(seq.name)+'" onchange="updateSeqName('+si+',this.value)">';
-    html += '<span class="seq-stats">'+seqDone+'/'+seq.shots.length+'</span>';
-    if(state.sequences.length>1) html += '<button class="seq-del" onclick="deleteSequence('+si+')">✕</button>';
-    html += '</div>';
-
-    // Shots
-    html += '<div class="shots-table">';
-    shots.forEach((shot,di)=>{
-      const oi = shot._oi;
-      const cls = shot.done?'done':di%2===0?'even':'odd';
-      html += '<div class="shot-row '+cls+'">';
-
-      // Top row: core fields + controls
-      html += '<div class="field-row-top">';
-
-      // Move buttons
-      html += '<div style="display:flex;flex-direction:column;gap:2px;flex-shrink:0">';
-      html += '<button class="move-btn" onclick="moveShot('+si+','+oi+',-1)" title="Move up">▲</button>';
-      html += '<button class="move-btn" onclick="moveShot('+si+','+oi+',1)" title="Move down">▼</button>';
-      html += '</div>';
-
-      html += '<div class="field field-shot"><label>Shot #</label><input value="'+esc(shot.shotNum)+'" onchange="updateField('+si+','+oi+',\'shotNum\',this.value)"></div>';
-      html += '<div class="field field-ie"><label>INT/EXT</label><select onchange="updateField('+si+','+oi+',\'intExt\',this.value)">'+makeOpts(INT_EXT).replace('value="'+shot.intExt+'"','value="'+shot.intExt+'" selected')+'</select></div>';
-      html += '<div class="field field-loc"><label>Location</label><input value="'+esc(shot.location)+'" onchange="updateField('+si+','+oi+',\'location\',this.value);render()"></div>';
-      html += '<div class="field field-size"><label>Size</label><select onchange="updateField('+si+','+oi+',\'shotSize\',this.value)">'+makeOpts(SHOT_SIZES).replace('value="'+shot.shotSize+'"','value="'+shot.shotSize+'" selected')+'</select></div>';
-      html += '<div class="field field-angle"><label>Angle</label><select onchange="updateField('+si+','+oi+',\'shotAngle\',this.value)">'+makeOpts(ANGLES).replace('value="'+shot.shotAngle+'"','value="'+shot.shotAngle+'" selected')+'</select></div>';
-      html += '<div class="field field-audio"><label>Audio</label><select onchange="updateField('+si+','+oi+',\'audio\',this.value)">'+makeOpts(AUDIO).replace('value="'+shot.audio+'"','value="'+shot.audio+'" selected')+'</select></div>';
-      html += '<div class="field field-subject"><label>Subject</label><input value="'+esc(shot.subject)+'" onchange="updateField('+si+','+oi+',\'subject\',this.value)"></div>';
-
-      // VFX
-      html += '<div class="field" style="justify-content:center;align-items:center;padding-top:14px"><label>VFX</label><input type="checkbox" class="vfx-check" '+(shot.vfx?'checked':'')+' onchange="updateField('+si+','+oi+',\'vfx\',this.checked)"></div>';
-
-      // Done button
-      html += '<button class="done-btn'+(shot.done?' checked':'')+'" onclick="toggleDone('+si+','+oi+')">'+(shot.done?'✓':'')+'</button>';
-
-      // Row actions
-      html += '<div class="row-controls">';
-      html += '<button class="ctrl-btn" onclick="dupShot('+si+','+oi+')" title="Duplicate">⧉</button>';
-      html += '<button class="ctrl-btn" onclick="if(confirm(\'Delete shot '+esc(shot.shotNum)+'?\'))deleteShot('+si+','+oi+')" title="Delete">✕</button>';
-      html += '</div>';
-
-      html += '</div>'; // field-row-top
-
-      // Bottom row: description + dialogue
-      html += '<div class="field-row-bottom" style="padding-left:40px">';
-      html += '<div class="field field-desc"><label>Description</label><textarea onchange="updateField('+si+','+oi+',\'description\',this.value)">'+esc(shot.description)+'</textarea></div>';
-      html += '<div class="field field-dial"><label>Dialogue</label><textarea onchange="updateField('+si+','+oi+',\'dialogue\',this.value)">'+esc(shot.dialogue)+'</textarea></div>';
-      html += '</div>';
-
-      html += '</div>'; // shot-row
-    });
-    html += '</div>'; // shots-table
-
-    html += '<button class="add-shot" onclick="addShot('+si+')">+ Add Shot</button>';
-    html += '</div>'; // seq-wrap
-  });
-
-  html += '<button class="btn add-seq" onclick="addSequence()">+ Add Sequence</button>';
-
-  // Tips
-  html += '<div class="tips"><strong>Tips:</strong> Use ▲▼ to reorder shots on set &middot; Tap ✓ to mark done (row turns green) &middot; "By Location" groups shots for efficient shooting &middot; Export JSON to save your work, Import to reload &middot; Export PDF for printout &middot; Add to Home Screen on iPhone for app-like experience</div>';
-
-  document.getElementById('app').innerHTML = html;
-}
-
 function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
-// Init
-load();
-render();
+function render(){
+  const all=getAllShots(), total=all.length, done=all.filter(s=>s.done).length;
+  const pct=total>0?(done/total*100):0;
+  const locs=getLocations();
+  let h='';
+
+  h+='<div class="pdf-header container"><div><div class="pdf-title">'+esc(state.title)+'</div><div style="font-size:13px;color:var(--text2);margin-top:2px">'+esc(state.date)+(state.director?' \u00b7 Dir: '+esc(state.director):'')+(state.dop?' \u00b7 DoP: '+esc(state.dop):'')+'</div></div><div class="pdf-meta">'+done+' / '+total+' shots<br>'+new Date().toLocaleDateString()+'</div></div>';
+
+  h+='<div class="header"><div class="header-inner">';
+  h+='<div class="header-top">';
+  h+='<input class="project-title" value="'+esc(state.title)+'" placeholder="Project Title" onchange="updateMeta(\'title\',this.value);render()">';
+  h+='<div class="progress-wrap"><span class="progress-text"><strong>'+done+'</strong> / '+total+'</span><div class="progress-bar"><div class="progress-fill" style="width:'+pct+'%;background:'+(pct>=100?'var(--green)':'var(--orange)')+'"></div></div></div>';
+  h+='</div>';
+  h+='<div class="meta-row">';
+  h+='<span class="meta-label">Date <input type="date" class="meta-input" value="'+esc(state.date)+'" onchange="updateMeta(\'date\',this.value)"></span>';
+  h+='<span class="meta-label">Director <input class="meta-input" value="'+esc(state.director)+'" placeholder="\u2014" onchange="updateMeta(\'director\',this.value)"></span>';
+  h+='<span class="meta-label">DoP <input class="meta-input" value="'+esc(state.dop)+'" placeholder="\u2014" onchange="updateMeta(\'dop\',this.value)"></span>';
+  h+='</div>';
+  h+='</div></div>';
+
+  h+='<div class="toolbar">';
+  h+='<select class="filter-select" onchange="filterLoc=this.value;render()"><option value="">All Locations</option>';
+  locs.forEach(l=>{h+='<option value="'+esc(l)+'"'+(filterLoc===l?' selected':'')+'>'+esc(l)+'</option>';});
+  h+='</select>';
+  h+='<div class="btn-group">';
+  [{k:'script',l:'Script Order'},{k:'location',l:'By Location'},{k:'status',l:'By Status'}].forEach(m=>{
+    h+='<button class="btn-tab'+(viewMode===m.k?' active':'')+'" onclick="viewMode=\''+m.k+'\';render()">'+m.l+'</button>';
+  });
+  h+='</div>';
+  h+='<span class="spacer"></span>';
+  h+='<button class="btn" onclick="importJSON()">Import</button>';
+  h+='<button class="btn" onclick="exportJSON()">Export JSON</button>';
+  h+='<button class="btn" onclick="exportPDF()">Export PDF</button>';
+  h+='<button class="btn" onclick="addSequence()">+ Sequence</button>';
+  h+='</div>';
+
+  h+='<div class="container">';
+  state.sequences.forEach((seq,si)=>{
+    let shots=seq.shots.map((sh,i)=>({...sh,_oi:i}));
+    if(filterLoc) shots=shots.filter(s=>s.location===filterLoc);
+    if(viewMode==='location') shots.sort((a,b)=>a.location.localeCompare(b.location));
+    else if(viewMode==='status') shots.sort((a,b)=>a.done===b.done?0:a.done?1:-1);
+    const seqDone=seq.shots.filter(s=>s.done).length;
+
+    h+='<div class="seq-wrap">';
+    h+='<div class="seq-header">';
+    h+='<span class="seq-badge">SEQ '+(si+1)+'</span>';
+    h+='<input class="seq-name" value="'+esc(seq.name)+'" onchange="updateSeqName('+si+',this.value)">';
+    h+='<span class="seq-stats">'+seqDone+' / '+seq.shots.length+' done</span>';
+    if(state.sequences.length>1) h+='<button class="seq-del" onclick="deleteSequence('+si+')" title="Delete sequence">&times;</button>';
+    h+='</div>';
+
+    h+='<div class="shots-table">';
+    h+='<div class="shot-header">';
+    h+='<span></span><span>Shot #</span><span>INT/EXT</span><span>Location</span><span>Size</span><span>Angle</span><span>Audio</span><span>Subject</span><span>Description</span><span>Dialogue</span><span>VFX</span><span></span><span></span>';
+    h+='</div>';
+
+    shots.forEach((shot,di)=>{
+      const oi=shot._oi;
+      const cls=shot.done?' done':'';
+      h+='<div class="shot-row'+cls+'">';
+      h+='<div class="drag-handle" draggable="true" data-seq="'+si+'" data-idx="'+oi+'" ontouchstart="touchDragStart(event,'+si+','+oi+')" ontouchmove="touchDragMove(event)" ontouchend="touchDragEnd(event,'+si+')" ondragstart="dragStart(event,'+si+','+oi+')" ondragover="dragOver(event)" ondrop="drop(event,'+si+','+oi+')" ondragend="dragEnd()">&#8942;&#8942;</div>';
+      h+='<div class="cell"><label class="mobile-label">Shot #</label><input type="text" value="'+esc(shot.shotNum)+'" onchange="updateField('+si+','+oi+',\'shotNum\',this.value)" style="font-weight:700"></div>';
+      h+='<div class="cell"><label class="mobile-label">INT/EXT</label><select onchange="updateField('+si+','+oi+',\'intExt\',this.value)">'+makeOpts(INT_EXT,shot.intExt)+'</select></div>';
+      h+='<div class="cell"><label class="mobile-label">Location</label><input type="text" value="'+esc(shot.location)+'" onchange="updateField('+si+','+oi+',\'location\',this.value);render()" placeholder="\u2014"></div>';
+      h+='<div class="cell"><label class="mobile-label">Size</label><select onchange="updateField('+si+','+oi+',\'shotSize\',this.value)">'+makeOpts(SHOT_SIZES,shot.shotSize)+'</select></div>';
+      h+='<div class="cell"><label class="mobile-label">Angle</label><select onchange="updateField('+si+','+oi+',\'shotAngle\',this.value)">'+makeOpts(ANGLES,shot.shotAngle)+'</select></div>';
+      h+='<div class="cell"><label class="mobile-label">Audio</label><select onchange="updateField('+si+','+oi+',\'audio\',this.value)">'+makeOpts(AUDIO,shot.audio)+'</select></div>';
+      h+='<div class="cell"><label class="mobile-label">Subject</label><input type="text" value="'+esc(shot.subject)+'" onchange="updateField('+si+','+oi+',\'subject\',this.value)" placeholder="\u2014"></div>';
+      h+='<div class="cell cell-desc"><label class="mobile-label">Description</label><textarea onchange="updateField('+si+','+oi+',\'description\',this.value)" placeholder="Shot description\u2026">'+esc(shot.description)+'</textarea></div>';
+      h+='<div class="cell cell-dial"><label class="mobile-label">Dialogue</label><textarea onchange="updateField('+si+','+oi+',\'dialogue\',this.value)" placeholder="Dialogue\u2026">'+esc(shot.dialogue)+'</textarea></div>';
+      h+='<div class="cell" style="justify-content:center"><input type="checkbox" class="vfx-check" '+(shot.vfx?'checked':'')+' onchange="updateField('+si+','+oi+',\'vfx\',this.checked)" title="VFX"></div>';
+      h+='<div class="cell" style="justify-content:center"><button class="done-btn'+(shot.done?' checked':'')+'" onclick="toggleDone('+si+','+oi+')" title="'+(shot.done?'Mark not done':'Mark done')+'">'+(shot.done?'&#10003;':'')+'</button></div>';
+      h+='<div class="row-actions">';
+      h+='<button class="act-btn" onclick="dupShot('+si+','+oi+')" title="Duplicate">&#10697;</button>';
+      h+='<button class="act-btn del" onclick="if(confirm(\'Delete shot '+esc(shot.shotNum)+'?\'))deleteShot('+si+','+oi+')" title="Delete">&times;</button>';
+      h+='</div>';
+      h+='</div>';
+    });
+
+    h+='</div>';
+    h+='<button class="add-shot" onclick="addShot('+si+')">+ Add Shot</button>';
+    h+='</div>';
+  });
+
+  h+='<button class="btn add-seq" onclick="addSequence()">+ Add Sequence</button>';
+  h+='<div class="tips"><strong>Tips:</strong> Drag \u22ee\u22ee to reorder shots \u00b7 Click \u2713 to mark done (row turns green) \u00b7 "By Location" groups shots for efficient shooting \u00b7 Export JSON to save, Import to reload \u00b7 Export PDF for print \u00b7 On iPhone: Share \u2192 Add to Home Screen</div>';
+  h+='</div>';
+
+  document.getElementById('app').innerHTML=h;
+}
+
+let dragSrc = null;
+function dragStart(e, si, oi) {
+  dragSrc = {si, oi};
+  e.dataTransfer.effectAllowed = 'move';
+  const row = e.target.closest('.shot-row');
+  if (row) row.classList.add('dragging');
+}
+function dragOver(e) {
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
+  const row = e.target.closest('.shot-row');
+  document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+  if (row) row.classList.add('drag-over');
+}
+function drop(e, si, oi) {
+  e.preventDefault();
+  document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+  if (!dragSrc || dragSrc.si !== si) { dragSrc = null; return; }
+  const shots = state.sequences[si].shots;
+  const [removed] = shots.splice(dragSrc.oi, 1);
+  shots.splice(oi, 0, removed);
+  dragSrc = null;
+  save(); render();
+}
+function dragEnd() {
+  dragSrc = null;
+  document.querySelectorAll('.dragging,.drag-over').forEach(el => { el.classList.remove('dragging'); el.classList.remove('drag-over'); });
+}
+
+let touchDragData = null;
+let touchClone = null;
+function touchDragStart(e, si, oi) {
+  touchDragData = {si, oi, startY: e.touches[0].clientY};
+  const row = e.target.closest('.shot-row');
+  if (row) {
+    row.classList.add('dragging');
+    touchClone = row.cloneNode(true);
+    touchClone.style.cssText = 'position:fixed;z-index:9999;pointer-events:none;opacity:0.8;width:'+row.offsetWidth+'px;left:'+row.getBoundingClientRect().left+'px;top:'+e.touches[0].clientY+'px;transform:translateY(-50%);box-shadow:0 4px 20px rgba(0,0,0,0.15);';
+    document.body.appendChild(touchClone);
+  }
+}
+function touchDragMove(e) {
+  if (!touchDragData) return;
+  e.preventDefault();
+  if (touchClone) touchClone.style.top = e.touches[0].clientY + 'px';
+  const el = document.elementFromPoint(e.touches[0].clientX, e.touches[0].clientY);
+  document.querySelectorAll('.drag-over').forEach(r => r.classList.remove('drag-over'));
+  if (el) { const row = el.closest('.shot-row'); if (row) row.classList.add('drag-over'); }
+}
+function touchDragEnd(e, si) {
+  if (!touchDragData) return;
+  if (touchClone) { touchClone.remove(); touchClone = null; }
+  document.querySelectorAll('.dragging,.drag-over').forEach(r => { r.classList.remove('dragging'); r.classList.remove('drag-over'); });
+  const overEl = document.elementFromPoint(e.changedTouches[0].clientX, e.changedTouches[0].clientY);
+  if (overEl) {
+    const row = overEl.closest('.shot-row');
+    if (row) {
+      const handle = row.querySelector('.drag-handle');
+      if (handle && handle.dataset.seq == touchDragData.si) {
+        const targetIdx = parseInt(handle.dataset.idx);
+        const shots = state.sequences[si].shots;
+        const [removed] = shots.splice(touchDragData.oi, 1);
+        shots.splice(targetIdx, 0, removed);
+        save(); render();
+      }
+    }
+  }
+  touchDragData = null;
+}
+
+load(); render();
 </script>
 </body>
 </html>
