@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Shotlist">
+<title>Shotlist</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Asap:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<style>
+  :root {
+    --bg: #0a0a0a; --surface: #111; --surface2: #161616; --border: #222;
+    --text: #e0e0e0; --text2: #aaa; --text3: #666; --accent: #f59e0b;
+    --green: #4ade80; --green-bg: rgba(74,222,128,0.08); --purple: #a855f7;
+    --radius: 8px;
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html, body { background:var(--bg); color:var(--text); font-family:'Asap',sans-serif; min-height:100vh; overflow-x:hidden; }
+  input, select, textarea, button { font-family:'Asap',sans-serif; }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width:6px; height:6px; }
+  ::-webkit-scrollbar-track { background:var(--bg); }
+  ::-webkit-scrollbar-thumb { background:#333; border-radius:3px; }
+
+  /* Header */
+  .header { padding:16px; display:flex; flex-direction:column; gap:8px; position:sticky; top:0; z-index:100; background:var(--bg); border-bottom:1px solid var(--border); }
+  .header-top { display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; }
+  .project-title { font-size:22px; font-weight:700; background:none; border:none; color:#fff; padding:0; outline:none; width:100%; max-width:300px; }
+  .meta-row { display:flex; gap:12px; flex-wrap:wrap; align-items:center; }
+  .meta-label { font-size:11px; color:var(--text3); display:flex; align-items:center; gap:4px; }
+  .meta-input { background:var(--surface); border:1px solid var(--border); color:var(--text2); padding:4px 8px; border-radius:4px; font-size:12px; width:100px; }
+  .meta-input[type="date"] { width:130px; }
+
+  /* Progress */
+  .progress-wrap { display:flex; align-items:center; gap:10px; }
+  .progress-text { font-size:12px; color:var(--text3); white-space:nowrap; }
+  .progress-text strong { color:var(--green); font-size:16px; }
+  .progress-bar { width:120px; height:5px; background:#222; border-radius:3px; overflow:hidden; flex-shrink:0; }
+  .progress-fill { height:100%; border-radius:3px; transition:width 0.3s; }
+
+  /* Toolbar */
+  .toolbar { display:flex; gap:6px; padding:8px 16px; overflow-x:auto; -webkit-overflow-scrolling:touch; flex-wrap:nowrap; }
+  .toolbar::-webkit-scrollbar { display:none; }
+  .btn { padding:7px 14px; font-size:12px; font-weight:600; background:var(--surface); color:var(--text2); border:1px solid var(--border); border-radius:6px; cursor:pointer; white-space:nowrap; flex-shrink:0; }
+  .btn:active { background:#222; }
+  .btn-group { display:flex; background:var(--surface); border-radius:6px; border:1px solid var(--border); overflow:hidden; flex-shrink:0; }
+  .btn-tab { padding:7px 10px; font-size:11px; font-weight:600; background:transparent; color:var(--text3); border:none; cursor:pointer; white-space:nowrap; }
+  .btn-tab.active { background:#333; color:#fff; }
+  .filter-select { background:var(--surface); border:1px solid var(--border); color:var(--text2); padding:7px 10px; border-radius:6px; font-size:12px; flex-shrink:0; }
+
+  /* Sequence */
+  .seq-wrap { margin:12px 8px; }
+  .seq-header { display:flex; align-items:center; gap:8px; padding:10px 12px; background:var(--surface); border-radius:var(--radius) var(--radius) 0 0; border:1px solid var(--border); border-bottom:none; }
+  .seq-badge { color:var(--accent); font-weight:700; font-size:12px; flex-shrink:0; }
+  .seq-name { font-size:14px; font-weight:600; background:none; border:none; color:#fff; padding:2px 6px; outline:none; flex:1; min-width:0; text-align:left; }
+  .seq-stats { font-size:11px; color:var(--text3); flex-shrink:0; }
+  .seq-del { background:none; border:none; color:#444; cursor:pointer; font-size:14px; padding:4px; flex-shrink:0; }
+
+  /* Shot rows */
+  .shots-table { border:1px solid var(--border); border-radius:0 0 var(--radius) var(--radius); overflow:hidden; }
+  .shot-row { display:flex; flex-wrap:wrap; padding:8px 10px; gap:6px 8px; border-bottom:1px solid #1a1a1a; align-items:flex-start; position:relative; transition:background 0.15s; border-left:3px solid transparent; }
+  .shot-row:last-child { border-bottom:none; }
+  .shot-row.even { background:var(--surface); }
+  .shot-row.odd { background:var(--surface2); }
+  .shot-row.done { background:var(--green-bg); border-left-color:var(--green); }
+  .shot-row.drag-over { box-shadow:inset 0 2px 0 var(--accent); }
+
+  /* Shot fields */
+  .field-row-top { display:flex; gap:6px; width:100%; align-items:center; flex-wrap:wrap; }
+  .field-row-bottom { display:flex; gap:6px; width:100%; flex-wrap:wrap; }
+  .field { display:flex; flex-direction:column; gap:2px; }
+  .field label { font-size:9px; color:var(--text3); text-transform:uppercase; letter-spacing:0.5px; font-weight:600; }
+  .field input, .field select { background:transparent; border:1px solid transparent; color:var(--text); padding:4px 6px; border-radius:3px; font-size:13px; }
+  .field input:focus, .field select:focus, .field textarea:focus { border-color:var(--text3); outline:none; }
+  .field select { color:var(--text2); }
+  .field textarea { background:transparent; border:1px solid transparent; color:var(--text); padding:4px 6px; border-radius:3px; font-size:13px; resize:vertical; min-height:34px; width:100%; }
+  .field-shot { width:50px; }
+  .field-ie { width:65px; }
+  .field-loc { width:70px; }
+  .field-size { width:65px; }
+  .field-angle { width:90px; }
+  .field-audio { width:60px; }
+  .field-subject { width:80px; }
+  .field-desc { flex:2; min-width:150px; }
+  .field-dial { flex:1; min-width:120px; }
+
+  /* Controls */
+  .row-controls { display:flex; gap:2px; align-items:center; margin-left:auto; flex-shrink:0; }
+  .ctrl-btn { width:32px; height:32px; display:flex; align-items:center; justify-content:center; background:none; border:1px solid transparent; color:var(--text3); cursor:pointer; border-radius:4px; font-size:14px; flex-shrink:0; }
+  .ctrl-btn:active { background:#222; }
+  .done-btn { width:38px; height:38px; border-radius:50%; border:2px solid #444; background:transparent; color:var(--text3); font-size:16px; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 0.15s; flex-shrink:0; }
+  .done-btn.checked { border-color:var(--green); background:var(--green); color:#000; }
+  .vfx-check { accent-color:var(--purple); width:18px; height:18px; }
+
+  /* Move buttons */
+  .move-btn { width:28px; height:28px; display:flex; align-items:center; justify-content:center; background:var(--surface); border:1px solid var(--border); color:var(--text3); cursor:pointer; border-radius:4px; font-size:12px; }
+  .move-btn:active { background:#333; color:#fff; }
+
+  /* Add shot */
+  .add-shot { width:100%; padding:8px; font-size:12px; background:transparent; color:var(--text3); border:1px dashed var(--border); border-top:none; border-radius:0 0 var(--radius) var(--radius); cursor:pointer; }
+  .add-shot:active { color:var(--text2); background:#111; }
+
+  /* Modal */
+  .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:999; display:flex; align-items:center; justify-content:center; padding:20px; }
+  .modal { background:#1a1a1a; border:1px solid var(--border); border-radius:12px; padding:20px; max-width:400px; width:100%; }
+  .modal h3 { font-size:16px; margin-bottom:12px; }
+  .modal-btns { display:flex; gap:8px; margin-top:16px; }
+  .modal-btn { flex:1; padding:10px; border-radius:8px; border:1px solid var(--border); background:var(--surface); color:var(--text); font-size:14px; font-weight:600; cursor:pointer; text-align:center; }
+  .modal-btn.primary { background:var(--accent); color:#000; border-color:var(--accent); }
+
+  /* PDF specific */
+  .pdf-mode .header, .pdf-mode .toolbar, .pdf-mode .row-controls, .pdf-mode .add-shot, .pdf-mode .add-seq, .pdf-mode .seq-del, .pdf-mode .tips { display:none !important; }
+  .pdf-mode .shot-row { border-left-width:2px !important; }
+  .pdf-mode { background:#fff !important; color:#111 !important; padding:10px !important; }
+  .pdf-mode .seq-wrap { margin:6px 0 !important; }
+  .pdf-mode .seq-header { background:#f5f5f5 !important; border-color:#ddd !important; }
+  .pdf-mode .seq-badge { color:#b45309 !important; }
+  .pdf-mode .seq-name { color:#111 !important; }
+  .pdf-mode .seq-stats { color:#888 !important; }
+  .pdf-mode .shots-table { border-color:#ddd !important; }
+  .pdf-mode .shot-row { background:#fff !important; border-bottom-color:#eee !important; }
+  .pdf-mode .shot-row.done { background:#f0fdf4 !important; border-left-color:var(--green) !important; }
+  .pdf-mode .field label { color:#888 !important; }
+  .pdf-mode .field input, .pdf-mode .field select, .pdf-mode .field textarea { color:#111 !important; border-color:transparent !important; padding:2px 4px !important; font-size:11px !important; }
+  .pdf-mode .pdf-header { display:flex !important; justify-content:space-between; align-items:flex-start; padding:10px 12px; margin-bottom:8px; border-bottom:2px solid #111; }
+  .pdf-header { display:none; }
+  .pdf-mode .pdf-title { font-size:20px; font-weight:700; color:#111; }
+  .pdf-mode .pdf-meta { font-size:11px; color:#666; text-align:right; }
+
+  /* Tips */
+  .tips { margin:12px 16px; padding:10px 14px; background:var(--surface); border-radius:var(--radius); border:1px solid var(--border); font-size:11px; color:var(--text3); }
+  .tips strong { color:var(--text2); }
+
+  /* Add sequence */
+  .add-seq { display:block; margin:0 8px 20px; }
+
+  /* Responsive */
+  @media (max-width: 600px) {
+    .project-title { font-size:18px; max-width:200px; }
+    .field-desc, .field-dial { min-width:100%; }
+    .progress-bar { width:80px; }
+    .meta-input { width:80px; }
+  }
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+const SHOT_SIZES = ["","EWS","WS","FS","MFS","MS","MCU","CU","ECU","Detail","POV","OTS","Insert"];
+const ANGLES = ["","Eye Level","Low Angle","High Angle","Dutch","Bird's Eye","Worm's Eye","Over Shoulder"];
+const INT_EXT = ["","INT","EXT","INT/EXT"];
+const AUDIO = ["","Sync","MOS","VO","Atmo","SFX"];
+
+const SAMPLE = {
+  title:"UI Hero E02", date:"2025-08-19", director:"", dop:"",
+  sequences:[{
+    id:"seq-1", name:"Hero 01",
+    shots:[
+      {id:"s1",shotNum:"01",intExt:"INT",location:"Loc 1",shotSize:"WS",shotAngle:"Eye Level",audio:"MOS",subject:"Thomas",description:"",dialogue:"",done:false,vfx:false},
+      {id:"s2",shotNum:"02",intExt:"INT",location:"Loc 2",shotSize:"MS",shotAngle:"Low Angle",audio:"Sync",subject:"Thomas",description:"",dialogue:"",done:false,vfx:false},
+      {id:"s3",shotNum:"03",intExt:"INT",location:"Loc 2",shotSize:"WS",shotAngle:"Eye Level",audio:"MOS",subject:"Thomas",description:"",dialogue:"",done:false,vfx:false},
+      {id:"s3a",shotNum:"03A",intExt:"INT",location:"Loc 2",shotSize:"CU",shotAngle:"Eye Level",audio:"MOS",subject:"Lego",description:"",dialogue:"",done:false,vfx:true},
+      {id:"s4",shotNum:"04",intExt:"INT",location:"Loc 2",shotSize:"ECU",shotAngle:"Eye Level",audio:"Sync",subject:"Thomas",description:"",dialogue:"",done:false,vfx:false},
+      {id:"s5",shotNum:"05",intExt:"INT",location:"Loc 2",shotSize:"MS",shotAngle:"Eye Level",audio:"Sync",subject:"Thomas",description:"",dialogue:"",done:false,vfx:false},
+      {id:"s6",shotNum:"06",intExt:"INT",location:"Loc 2",shotSize:"MS",shotAngle:"Eye Level",audio:"Sync",subject:"Thomas",description:"",dialogue:"",done:false,vfx:false},
+      {id:"s7",shotNum:"07",intExt:"INT",location:"Loc 3",shotSize:"WS",shotAngle:"Eye Level",audio:"Sync",subject:"Thomas",description:"",dialogue:"",done:false,vfx:false},
+      {id:"s8",shotNum:"08",intExt:"INT",location:"Loc 3",shotSize:"CU",shotAngle:"Eye Level",audio:"Sync",subject:"Thomas",description:"",dialogue:"",done:false,vfx:false},
+      {id:"s9",shotNum:"09",intExt:"INT",location:"",shotSize:"",shotAngle:"",audio:"MOS",subject:"",description:"",dialogue:"",done:false,vfx:false},
+      {id:"s10",shotNum:"10",intExt:"INT",location:"Loc 2",shotSize:"WS",shotAngle:"Eye Level",audio:"Sync",subject:"Thomas",description:"",dialogue:"",done:false,vfx:false},
+      {id:"s11",shotNum:"11",intExt:"INT",location:"Loc 2",shotSize:"MS",shotAngle:"High Angle",audio:"Sync",subject:"Thomas",description:"",dialogue:"",done:false,vfx:false},
+      {id:"s12",shotNum:"12",intExt:"INT",location:"Loc 4",shotSize:"MS",shotAngle:"Eye Level",audio:"MOS",subject:"Thomas",description:"",dialogue:"",done:false,vfx:false},
+      {id:"s13",shotNum:"13",intExt:"INT",location:"Loc 4",shotSize:"MS",shotAngle:"Eye Level",audio:"Sync",subject:"Thomas",description:"",dialogue:"",done:false,vfx:false},
+      {id:"s13a",shotNum:"13A",intExt:"INT",location:"",shotSize:"CU",shotAngle:"",audio:"MOS",subject:"",description:"",dialogue:"",done:false,vfx:false},
+      {id:"s14",shotNum:"14",intExt:"INT",location:"",shotSize:"",shotAngle:"",audio:"",subject:"",description:"",dialogue:"",done:false,vfx:false},
+      {id:"s15",shotNum:"15",intExt:"INT",location:"Loc 4",shotSize:"MS",shotAngle:"Eye Level",audio:"Sync",subject:"Thomas",description:"",dialogue:"",done:false,vfx:false},
+      {id:"s16",shotNum:"16",intExt:"INT",location:"Loc 2",shotSize:"WS",shotAngle:"Eye Level",audio:"Sync",subject:"Thomas",description:"",dialogue:"",done:false,vfx:false},
+      {id:"s16a",shotNum:"16A",intExt:"INT",location:"Loc 2",shotSize:"MS",shotAngle:"Eye Level",audio:"Sync",subject:"Thomas",description:"",dialogue:"",done:false,vfx:false},
+      {id:"s17",shotNum:"17",intExt:"EXT",location:"",shotSize:"EWS",shotAngle:"",audio:"MOS",subject:"Thomas",description:"",dialogue:"",done:false,vfx:false},
+      {id:"s18",shotNum:"18",intExt:"INT",location:"Loc 2",shotSize:"CU",shotAngle:"Eye Level",audio:"Sync",subject:"Thomas",description:"",dialogue:"",done:false,vfx:false},
+      {id:"s18a",shotNum:"18alt",intExt:"INT",location:"Loc 2",shotSize:"MS",shotAngle:"Eye Level",audio:"Sync",subject:"Thomas + Team",description:"",dialogue:"",done:false,vfx:false},
+    ]
+  }]
+};
+
+let state = JSON.parse(JSON.stringify(SAMPLE));
+let filterLoc = "";
+let viewMode = "script";
+let showImportModal = false;
+
+function gid(){ return 'id-'+Math.random().toString(36).slice(2,9); }
+
+function save(){ try{ localStorage.setItem('shotlist_data', JSON.stringify(state)); }catch(e){} }
+function load(){ try{ const d=localStorage.getItem('shotlist_data'); if(d){ state=JSON.parse(d); } }catch(e){} }
+
+function getAllShots(){ return state.sequences.flatMap(s=>s.shots); }
+function getLocations(){ return [...new Set(getAllShots().map(s=>s.location).filter(Boolean))]; }
+
+function moveShot(seqIdx, shotIdx, dir){
+  const shots = state.sequences[seqIdx].shots;
+  const newIdx = shotIdx + dir;
+  if(newIdx < 0 || newIdx >= shots.length) return;
+  [shots[shotIdx], shots[newIdx]] = [shots[newIdx], shots[shotIdx]];
+  save(); render();
+}
+
+function toggleDone(seqIdx, shotIdx){
+  state.sequences[seqIdx].shots[shotIdx].done = !state.sequences[seqIdx].shots[shotIdx].done;
+  save(); render();
+}
+
+function updateField(seqIdx, shotIdx, field, val){
+  state.sequences[seqIdx].shots[shotIdx][field] = val;
+  save();
+}
+
+function updateMeta(field, val){ state[field]=val; save(); }
+function updateSeqName(seqIdx, val){ state.sequences[seqIdx].name=val; save(); }
+
+function addShot(seqIdx){
+  const seq = state.sequences[seqIdx];
+  const lastNum = seq.shots.length > 0 ? seq.shots[seq.shots.length-1].shotNum : "00";
+  const next = String(parseInt(lastNum)+1||seq.shots.length+1).padStart(2,'0');
+  seq.shots.push({id:gid(),shotNum:next,intExt:"INT",location:"",shotSize:"MS",shotAngle:"Eye Level",audio:"Sync",subject:"",description:"",dialogue:"",done:false,vfx:false});
+  save(); render();
+}
+
+function deleteShot(seqIdx, shotIdx){
+  state.sequences[seqIdx].shots.splice(shotIdx,1);
+  save(); render();
+}
+
+function dupShot(seqIdx, shotIdx){
+  const orig = state.sequences[seqIdx].shots[shotIdx];
+  const dup = {...orig, id:gid(), shotNum:orig.shotNum+'A', done:false};
+  state.sequences[seqIdx].shots.splice(shotIdx+1,0,dup);
+  save(); render();
+}
+
+function addSequence(){
+  state.sequences.push({id:gid(), name:'Sequence '+(state.sequences.length+1), shots:[{id:gid(),shotNum:'01',intExt:'INT',location:'',shotSize:'MS',shotAngle:'Eye Level',audio:'Sync',subject:'',description:'',dialogue:'',done:false,vfx:false}]});
+  save(); render();
+}
+
+function deleteSequence(seqIdx){
+  if(state.sequences.length<=1) return;
+  state.sequences.splice(seqIdx,1);
+  save(); render();
+}
+
+function exportJSON(){
+  const blob = new Blob([JSON.stringify(state,null,2)],{type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = (state.title||'shotlist').replace(/\s+/g,'_')+'.json';
+  a.click(); URL.revokeObjectURL(a.href);
+}
+
+function importJSON(){
+  const input = document.createElement('input');
+  input.type='file'; input.accept='.json';
+  input.onchange = e => {
+    const f = e.target.files[0]; if(!f) return;
+    const r = new FileReader();
+    r.onload = ev => {
+      try{
+        state = JSON.parse(ev.target.result);
+        save(); render();
+      }catch(err){ alert('Invalid JSON file'); }
+    };
+    r.readAsText(f);
+  };
+  input.click();
+}
+
+function exportPDF(){
+  const app = document.getElementById('app');
+  app.classList.add('pdf-mode');
+  const opt = {
+    margin: [8,8,8,8],
+    filename: (state.title||'shotlist').replace(/\s+/g,'_')+'.pdf',
+    image: {type:'jpeg', quality:0.95},
+    html2canvas: {scale:2, useCORS:true, backgroundColor:'#ffffff'},
+    jsPDF: {unit:'mm', format:'a4', orientation:'landscape'}
+  };
+  html2pdf().set(opt).from(app).save().then(()=>{
+    app.classList.remove('pdf-mode');
+  });
+}
+
+function resetData(){
+  if(confirm('Reset to sample data? This cannot be undone.')){
+    state = JSON.parse(JSON.stringify(SAMPLE));
+    save(); render();
+  }
+}
+
+function makeOpts(arr){
+  return arr.map(o=>'<option value="'+o+'">'+(o||'—')+'</option>').join('');
+}
+
+function render(){
+  const all = getAllShots();
+  const total = all.length;
+  const done = all.filter(s=>s.done).length;
+  const pct = total>0 ? (done/total*100) : 0;
+  const locs = getLocations();
+
+  let html = '';
+
+  // PDF header (hidden normally)
+  html += '<div class="pdf-header"><div><div class="pdf-title">'+esc(state.title)+'</div><div style="font-size:12px;color:#888;margin-top:2px;">'+esc(state.date)+(state.director?' &middot; Dir: '+esc(state.director):'')+(state.dop?' &middot; DoP: '+esc(state.dop):'')+'</div></div><div class="pdf-meta">'+done+' / '+total+' shots done<br>'+new Date().toLocaleDateString()+'</div></div>';
+
+  // Header
+  html += '<div class="header">';
+  html += '<div class="header-top">';
+  html += '<input class="project-title" value="'+esc(state.title)+'" placeholder="Project Title" onchange="updateMeta(\'title\',this.value);render()">';
+  html += '<div class="progress-wrap"><span class="progress-text"><strong>'+done+'</strong> / '+total+'</span><div class="progress-bar"><div class="progress-fill" style="width:'+pct+'%;background:'+(pct===100?'var(--green)':'var(--accent)')+'"></div></div></div>';
+  html += '</div>';
+  html += '<div class="meta-row">';
+  html += '<span class="meta-label">Date <input type="date" class="meta-input" value="'+esc(state.date)+'" onchange="updateMeta(\'date\',this.value)"></span>';
+  html += '<span class="meta-label">Director <input class="meta-input" value="'+esc(state.director)+'" placeholder="—" onchange="updateMeta(\'director\',this.value)"></span>';
+  html += '<span class="meta-label">DoP <input class="meta-input" value="'+esc(state.dop)+'" placeholder="—" onchange="updateMeta(\'dop\',this.value)"></span>';
+  html += '</div>';
+  html += '</div>';
+
+  // Toolbar
+  html += '<div class="toolbar">';
+  html += '<select class="filter-select" onchange="filterLoc=this.value;render()"><option value="">All Locations</option>';
+  locs.forEach(l=>{ html+='<option value="'+esc(l)+'"'+(filterLoc===l?' selected':'')+'>'+esc(l)+'</option>'; });
+  html += '</select>';
+  html += '<div class="btn-group">';
+  ['script','location','status'].forEach(m=>{
+    const labels = {script:'Script',location:'By Location',status:'By Status'};
+    html += '<button class="btn-tab'+(viewMode===m?' active':'')+'" onclick="viewMode=\''+m+'\';render()">'+labels[m]+'</button>';
+  });
+  html += '</div>';
+  html += '<button class="btn" onclick="importJSON()">Import</button>';
+  html += '<button class="btn" onclick="exportJSON()">Export JSON</button>';
+  html += '<button class="btn" onclick="exportPDF()">Export PDF</button>';
+  html += '<button class="btn" onclick="resetData()">Reset</button>';
+  html += '</div>';
+
+  // Sequences
+  state.sequences.forEach((seq, si)=>{
+    let shots = seq.shots.map((sh,i)=>({...sh,_oi:i}));
+    if(filterLoc) shots = shots.filter(s=>s.location===filterLoc);
+    if(viewMode==='location') shots.sort((a,b)=>a.location.localeCompare(b.location));
+    else if(viewMode==='status') shots.sort((a,b)=>a.done===b.done?0:a.done?1:-1);
+    const seqDone = seq.shots.filter(s=>s.done).length;
+
+    html += '<div class="seq-wrap">';
+
+    // Seq header
+    html += '<div class="seq-header">';
+    html += '<span class="seq-badge">SEQ '+(si+1)+'</span>';
+    html += '<input class="seq-name" value="'+esc(seq.name)+'" onchange="updateSeqName('+si+',this.value)">';
+    html += '<span class="seq-stats">'+seqDone+'/'+seq.shots.length+'</span>';
+    if(state.sequences.length>1) html += '<button class="seq-del" onclick="deleteSequence('+si+')">✕</button>';
+    html += '</div>';
+
+    // Shots
+    html += '<div class="shots-table">';
+    shots.forEach((shot,di)=>{
+      const oi = shot._oi;
+      const cls = shot.done?'done':di%2===0?'even':'odd';
+      html += '<div class="shot-row '+cls+'">';
+
+      // Top row: core fields + controls
+      html += '<div class="field-row-top">';
+
+      // Move buttons
+      html += '<div style="display:flex;flex-direction:column;gap:2px;flex-shrink:0">';
+      html += '<button class="move-btn" onclick="moveShot('+si+','+oi+',-1)" title="Move up">▲</button>';
+      html += '<button class="move-btn" onclick="moveShot('+si+','+oi+',1)" title="Move down">▼</button>';
+      html += '</div>';
+
+      html += '<div class="field field-shot"><label>Shot #</label><input value="'+esc(shot.shotNum)+'" onchange="updateField('+si+','+oi+',\'shotNum\',this.value)"></div>';
+      html += '<div class="field field-ie"><label>INT/EXT</label><select onchange="updateField('+si+','+oi+',\'intExt\',this.value)">'+makeOpts(INT_EXT).replace('value="'+shot.intExt+'"','value="'+shot.intExt+'" selected')+'</select></div>';
+      html += '<div class="field field-loc"><label>Location</label><input value="'+esc(shot.location)+'" onchange="updateField('+si+','+oi+',\'location\',this.value);render()"></div>';
+      html += '<div class="field field-size"><label>Size</label><select onchange="updateField('+si+','+oi+',\'shotSize\',this.value)">'+makeOpts(SHOT_SIZES).replace('value="'+shot.shotSize+'"','value="'+shot.shotSize+'" selected')+'</select></div>';
+      html += '<div class="field field-angle"><label>Angle</label><select onchange="updateField('+si+','+oi+',\'shotAngle\',this.value)">'+makeOpts(ANGLES).replace('value="'+shot.shotAngle+'"','value="'+shot.shotAngle+'" selected')+'</select></div>';
+      html += '<div class="field field-audio"><label>Audio</label><select onchange="updateField('+si+','+oi+',\'audio\',this.value)">'+makeOpts(AUDIO).replace('value="'+shot.audio+'"','value="'+shot.audio+'" selected')+'</select></div>';
+      html += '<div class="field field-subject"><label>Subject</label><input value="'+esc(shot.subject)+'" onchange="updateField('+si+','+oi+',\'subject\',this.value)"></div>';
+
+      // VFX
+      html += '<div class="field" style="justify-content:center;align-items:center;padding-top:14px"><label>VFX</label><input type="checkbox" class="vfx-check" '+(shot.vfx?'checked':'')+' onchange="updateField('+si+','+oi+',\'vfx\',this.checked)"></div>';
+
+      // Done button
+      html += '<button class="done-btn'+(shot.done?' checked':'')+'" onclick="toggleDone('+si+','+oi+')">'+(shot.done?'✓':'')+'</button>';
+
+      // Row actions
+      html += '<div class="row-controls">';
+      html += '<button class="ctrl-btn" onclick="dupShot('+si+','+oi+')" title="Duplicate">⧉</button>';
+      html += '<button class="ctrl-btn" onclick="if(confirm(\'Delete shot '+esc(shot.shotNum)+'?\'))deleteShot('+si+','+oi+')" title="Delete">✕</button>';
+      html += '</div>';
+
+      html += '</div>'; // field-row-top
+
+      // Bottom row: description + dialogue
+      html += '<div class="field-row-bottom" style="padding-left:40px">';
+      html += '<div class="field field-desc"><label>Description</label><textarea onchange="updateField('+si+','+oi+',\'description\',this.value)">'+esc(shot.description)+'</textarea></div>';
+      html += '<div class="field field-dial"><label>Dialogue</label><textarea onchange="updateField('+si+','+oi+',\'dialogue\',this.value)">'+esc(shot.dialogue)+'</textarea></div>';
+      html += '</div>';
+
+      html += '</div>'; // shot-row
+    });
+    html += '</div>'; // shots-table
+
+    html += '<button class="add-shot" onclick="addShot('+si+')">+ Add Shot</button>';
+    html += '</div>'; // seq-wrap
+  });
+
+  html += '<button class="btn add-seq" onclick="addSequence()">+ Add Sequence</button>';
+
+  // Tips
+  html += '<div class="tips"><strong>Tips:</strong> Use ▲▼ to reorder shots on set &middot; Tap ✓ to mark done (row turns green) &middot; "By Location" groups shots for efficient shooting &middot; Export JSON to save your work, Import to reload &middot; Export PDF for printout &middot; Add to Home Screen on iPhone for app-like experience</div>';
+
+  document.getElementById('app').innerHTML = html;
+}
+
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+// Init
+load();
+render();
+</script>
+</body>
+</html>
