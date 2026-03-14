@@ -11,391 +11,402 @@
 <link href="https://fonts.googleapis.com/css2?family=Asap:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <style>
-  /* ===== Apple HIG-informed design tokens =====
-     - 17px base body text (Apple default)
-     - 44px min touch targets
-     - 8px base spacing unit
-     - Bold, left-aligned typography
-     - High contrast, clean white backgrounds
-     - Grid-based layout
-  */
-  :root {
-    --bg: #ffffff;
-    --surface: #f5f5f7;
-    --surface2: #fafafa;
-    --border: #d2d2d7;
-    --border-light: #e8e8ed;
-    --text: #1d1d1f;
-    --text2: #6e6e73;
-    --text3: #86868b;
-    --accent: #0071e3;
-    --accent-hover: #0077ed;
-    --green: #34c759;
-    --green-bg: rgba(52,199,89,0.08);
-    --green-border: rgba(52,199,89,0.4);
-    --orange: #ff9f0a;
-    --purple: #af52de;
-    --red: #ff3b30;
-    --radius: 12px;
-    --radius-sm: 8px;
-    --space: 8px; /* base unit */
-  }
+/* ==========================================================================
+   SHOTLIST â Apple HIG-informed design
+   Single source of truth for column layout via CSS custom properties.
+   ========================================================================== */
 
-  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+:root {
+  /* Palette */
+  --bg: #ffffff;
+  --surface: #f5f5f7;
+  --surface2: #fafafa;
+  --border: #d2d2d7;
+  --border-light: #e8e8ed;
+  --text: #1d1d1f;
+  --text2: #6e6e73;
+  --text3: #86868b;
+  --accent: #0071e3;
+  --green: #34c759;
+  --green-bg: rgba(52,199,89,0.08);
+  --orange: #ff9f0a;
+  --purple: #af52de;
+  --red: #ff3b30;
+  --radius: 12px;
+  --radius-sm: 8px;
 
-  html, body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'Asap', -apple-system, 'SF Pro Text', 'Helvetica Neue', sans-serif;
-    font-size: 17px; /* Apple HIG default */
-    line-height: 1.47;
-    min-height: 100vh;
-    -webkit-font-smoothing: antialiased;
-  }
+  /* Grid â SINGLE definition used by both header and rows */
+  --grid-cols: 36px 60px 68px minmax(80px, 1.2fr) 72px 100px 64px minmax(80px, 1.2fr) 1.5fr 1.5fr 110px 40px 48px 56px;
+  --grid-cols-pdf: 0px 44px 52px minmax(56px, 1.2fr) 56px 88px 52px minmax(64px, 1.2fr) 1.5fr 1.5fr 72px 0px 0px 0px;
+}
 
-  input, select, textarea, button { font-family: inherit; font-size: inherit; }
+/* Reset */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
-  /* ===== Scrollbar ===== */
-  ::-webkit-scrollbar { width: 8px; height: 8px; }
-  ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
-  ::-webkit-scrollbar-thumb:hover { background: var(--text3); }
+html, body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Asap', -apple-system, 'SF Pro Text', 'Helvetica Neue', sans-serif;
+  font-size: 17px;
+  line-height: 1.47;
+  -webkit-font-smoothing: antialiased;
+}
 
-  /* ===== Layout container ===== */
-  .container { max-width: 1440px; margin: 0 auto; padding: 0 24px; }
+input, select, textarea, button { font-family: inherit; }
 
-  /* ===== Header ===== */
-  .header {
-    position: sticky; top: 0; z-index: 100;
-    background: rgba(255,255,255,0.85);
-    backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-    border-bottom: 1px solid var(--border-light);
-    padding: 16px 24px;
-  }
-  .header-inner { max-width: 1440px; margin: 0 auto; }
-  .header-top { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; }
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
 
-  .project-title {
-    font-size: 28px; font-weight: 700; letter-spacing: -0.5px;
-    background: none; border: none; color: var(--text);
-    padding: 0; outline: none; width: 320px;
-  }
-  .project-title::placeholder { color: var(--border); }
+/* =========== Layout =========== */
+.container { max-width: 1480px; margin: 0 auto; padding: 0 24px; }
 
-  .meta-row { display: flex; gap: 20px; flex-wrap: wrap; align-items: center; margin-top: 10px; }
-  .meta-label { font-size: 13px; font-weight: 600; color: var(--text3); display: flex; align-items: center; gap: 6px; }
-  .meta-input {
-    background: var(--surface); border: 1px solid var(--border-light);
-    color: var(--text); padding: 6px 10px; border-radius: var(--radius-sm);
-    font-size: 14px; font-weight: 500; width: 120px; transition: border-color 0.2s;
-  }
-  .meta-input:focus { border-color: var(--accent); outline: none; box-shadow: 0 0 0 3px rgba(0,113,227,0.1); }
-  .meta-input[type="date"] { width: 150px; }
+/* =========== Sticky header =========== */
+.header {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(255,255,255,0.88);
+  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border-light);
+  padding: 16px 24px;
+}
+.header-inner { max-width: 1480px; margin: 0 auto; }
+.header-top { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; }
+.project-title {
+  font-size: 28px; font-weight: 700; letter-spacing: -0.5px;
+  background: none; border: none; color: var(--text);
+  padding: 0; outline: none; width: 320px;
+}
+.project-title::placeholder { color: var(--border); }
+.meta-row { display: flex; gap: 20px; flex-wrap: wrap; align-items: center; margin-top: 10px; }
+.meta-label { font-size: 13px; font-weight: 600; color: var(--text3); display: flex; align-items: center; gap: 6px; }
+.meta-input {
+  background: var(--surface); border: 1px solid var(--border-light);
+  color: var(--text); padding: 6px 10px; border-radius: var(--radius-sm);
+  font-size: 14px; font-weight: 500; width: 120px; transition: border-color 0.2s;
+}
+.meta-input:focus { border-color: var(--accent); outline: none; box-shadow: 0 0 0 3px rgba(0,113,227,0.1); }
+.meta-input[type="date"] { width: 150px; }
 
-  /* ===== Progress ===== */
-  .progress-wrap { display: flex; align-items: center; gap: 12px; }
-  .progress-text { font-size: 15px; color: var(--text2); white-space: nowrap; font-weight: 500; }
-  .progress-text strong { color: var(--green); font-size: 22px; font-weight: 700; }
-  .progress-bar { width: 140px; height: 6px; background: var(--surface); border-radius: 3px; overflow: hidden; }
-  .progress-fill { height: 100%; border-radius: 3px; transition: width 0.4s ease; }
+/* Progress */
+.progress-wrap { display: flex; align-items: center; gap: 12px; }
+.progress-text { font-size: 15px; color: var(--text2); white-space: nowrap; font-weight: 500; }
+.progress-text strong { color: var(--green); font-size: 22px; font-weight: 700; }
+.progress-bar { width: 140px; height: 6px; background: var(--surface); border-radius: 3px; overflow: hidden; }
+.progress-fill { height: 100%; border-radius: 3px; transition: width 0.4s ease; }
 
-  /* ===== Toolbar ===== */
-  .toolbar {
-    display: flex; gap: 8px; padding: 12px 24px; align-items: center;
-    flex-wrap: wrap; max-width: 1440px; margin: 0 auto;
-    border-bottom: 1px solid var(--border-light);
-  }
-  .btn {
-    padding: 8px 18px; font-size: 14px; font-weight: 600;
-    background: var(--surface); color: var(--text2);
-    border: 1px solid var(--border-light); border-radius: var(--radius-sm);
-    cursor: pointer; white-space: nowrap; transition: all 0.15s;
-    min-height: 36px;
-  }
-  .btn:hover { background: var(--border-light); color: var(--text); }
-  .btn:active { transform: scale(0.98); }
+/* =========== Toolbar =========== */
+.toolbar {
+  display: flex; gap: 8px; padding: 12px 24px; align-items: center;
+  flex-wrap: wrap; max-width: 1480px; margin: 0 auto;
+  border-bottom: 1px solid var(--border-light);
+}
+.btn {
+  padding: 8px 18px; font-size: 14px; font-weight: 600;
+  background: var(--surface); color: var(--text2);
+  border: 1px solid var(--border-light); border-radius: var(--radius-sm);
+  cursor: pointer; white-space: nowrap; transition: all 0.15s; min-height: 36px;
+}
+.btn:hover { background: var(--border-light); color: var(--text); }
+.btn:active { transform: scale(0.98); }
+.btn-group {
+  display: flex; background: var(--surface); border-radius: var(--radius-sm);
+  border: 1px solid var(--border-light); overflow: hidden;
+}
+.btn-tab {
+  padding: 8px 16px; font-size: 14px; font-weight: 600;
+  background: transparent; color: var(--text3);
+  border: none; cursor: pointer; white-space: nowrap; transition: all 0.15s;
+}
+.btn-tab:hover { color: var(--text2); }
+.btn-tab.active { background: var(--bg); color: var(--text); box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+.filter-select {
+  background: var(--surface); border: 1px solid var(--border-light);
+  color: var(--text); padding: 8px 12px; border-radius: var(--radius-sm);
+  font-size: 14px; font-weight: 500; cursor: pointer; min-height: 36px;
+}
+.filter-select:focus { border-color: var(--accent); outline: none; }
+.spacer { flex: 1; }
 
-  .btn-group {
-    display: flex; background: var(--surface); border-radius: var(--radius-sm);
-    border: 1px solid var(--border-light); overflow: hidden;
-  }
-  .btn-tab {
-    padding: 8px 16px; font-size: 14px; font-weight: 600;
-    background: transparent; color: var(--text3);
-    border: none; cursor: pointer; white-space: nowrap; transition: all 0.15s;
-  }
-  .btn-tab:hover { color: var(--text2); }
-  .btn-tab.active { background: var(--bg); color: var(--text); box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+/* =========== Sequence =========== */
+.seq-wrap { margin: 16px 0; }
+.container .seq-wrap:first-of-type { margin-top: 20px; }
+.seq-header {
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px 16px;
+  background: var(--surface); border: 1px solid var(--border-light);
+  border-radius: var(--radius) var(--radius) 0 0;
+}
+.seq-badge {
+  background: var(--accent); color: #fff;
+  font-size: 11px; font-weight: 700; letter-spacing: 0.5px;
+  padding: 3px 10px; border-radius: 20px; flex-shrink: 0;
+}
+.seq-name {
+  font-size: 17px; font-weight: 700; background: none; border: none;
+  color: var(--text); padding: 2px 8px; outline: none; flex: 1; min-width: 0;
+}
+.seq-stats { font-size: 13px; color: var(--text3); font-weight: 500; flex-shrink: 0; }
+.seq-del {
+  background: none; border: none; color: var(--border); cursor: pointer;
+  font-size: 16px; padding: 4px 8px; border-radius: 4px; transition: color 0.15s;
+}
+.seq-del:hover { color: var(--red); }
 
-  .filter-select {
-    background: var(--surface); border: 1px solid var(--border-light);
-    color: var(--text); padding: 8px 12px; border-radius: var(--radius-sm);
-    font-size: 14px; font-weight: 500; cursor: pointer; min-height: 36px;
-  }
-  .filter-select:focus { border-color: var(--accent); outline: none; }
-  .spacer { flex: 1; }
+/* =========== Shot table =========== */
+.shots-table {
+  border: 1px solid var(--border-light); border-top: none;
+  border-radius: 0 0 var(--radius) var(--radius); overflow: hidden;
+}
 
-  /* ===== Sequence ===== */
-  .seq-wrap { margin: 16px 0; }
-  .container .seq-wrap:first-of-type { margin-top: 20px; }
+/* Column header row â uses the SAME custom property as data rows */
+.shot-header {
+  display: grid;
+  grid-template-columns: var(--grid-cols);
+  background: var(--surface);
+  border-bottom: 1px solid var(--border-light);
+}
+.shot-header span {
+  font-size: 11px; font-weight: 700; color: var(--text3);
+  text-transform: uppercase; letter-spacing: 0.5px;
+  padding: 10px 8px; white-space: nowrap;
+  display: flex; align-items: center;
+}
 
-  .seq-header {
-    display: flex; align-items: center; gap: 10px;
-    padding: 12px 16px;
-    background: var(--surface); border: 1px solid var(--border-light);
-    border-radius: var(--radius) var(--radius) 0 0;
-  }
-  .seq-badge {
-    background: var(--accent); color: #fff;
-    font-size: 11px; font-weight: 700; letter-spacing: 0.5px;
-    padding: 3px 10px; border-radius: 20px; flex-shrink: 0;
-  }
-  .seq-name {
-    font-size: 17px; font-weight: 700; background: none; border: none;
-    color: var(--text); padding: 2px 8px; outline: none; flex: 1;
-    min-width: 0; text-align: left;
-  }
-  .seq-stats { font-size: 13px; color: var(--text3); font-weight: 500; flex-shrink: 0; }
-  .seq-del {
-    background: none; border: none; color: var(--border); cursor: pointer;
-    font-size: 16px; padding: 4px 8px; border-radius: 4px; transition: color 0.15s;
-  }
-  .seq-del:hover { color: var(--red); }
+/* Data row â uses the SAME custom property as header */
+.shot-row {
+  display: grid;
+  grid-template-columns: var(--grid-cols);
+  align-items: center;
+  border-bottom: 1px solid var(--border-light);
+  transition: background 0.15s;
+  min-height: 52px;
+}
+.shot-row:last-child { border-bottom: none; }
+.shot-row:nth-child(even) { background: var(--surface2); }
+.shot-row:hover { background: rgba(0,113,227,0.03); }
+.shot-row.done { background: var(--green-bg); border-left: 3px solid var(--green); }
+.shot-row.done:hover { background: rgba(52,199,89,0.12); }
 
-  /* ===== Shot Table ===== */
-  .shots-table {
-    border: 1px solid var(--border-light); border-top: none;
-    border-radius: 0 0 var(--radius) var(--radius); overflow: hidden;
-  }
+/* Cells */
+.cell {
+  padding: 6px 8px; font-size: 15px; min-height: 44px;
+  display: flex; align-items: center; min-width: 0; overflow: hidden;
+}
 
-  /* Desktop: table layout */
-  .shot-header {
-    display: grid;
-    grid-template-columns: 36px 64px 72px minmax(88px,auto) 76px 110px 68px minmax(100px,auto) 1fr 1fr 120px 44px 56px 64px;
-    gap: 0; padding: 0;
-    background: var(--surface); border-bottom: 1px solid var(--border-light);
-    border-left: 3px solid transparent; /* match shot-row border-left offset */
-  }
-  .shot-header span {
-    font-size: 11px; font-weight: 700; color: var(--text3);
-    text-transform: uppercase; letter-spacing: 0.5px;
-    padding: 10px 8px; white-space: nowrap;
-  }
+/* Inputs inside cells */
+.shot-row input[type="text"],
+.shot-row select,
+.shot-row textarea {
+  width: 100%; background: transparent;
+  border: 1px solid transparent; color: var(--text);
+  padding: 6px 8px; border-radius: 6px; font-size: 15px;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  min-width: 0;
+}
+.shot-row input[type="text"]:focus,
+.shot-row select:focus,
+.shot-row textarea:focus {
+  border-color: var(--accent); outline: none;
+  box-shadow: 0 0 0 3px rgba(0,113,227,0.1);
+  background: var(--bg);
+}
+.shot-row select {
+  color: var(--text2); cursor: pointer;
+  -webkit-appearance: none; appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%2386868b'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  padding-right: 22px;
+}
+.shot-row textarea {
+  resize: vertical; min-height: 40px; line-height: 1.4; font-size: 14px;
+}
 
+/* =========== Reference image cell =========== */
+.ref-cell {
+  width: 100%; height: 130px;
+  border: 2px dashed var(--border-light); border-radius: var(--radius-sm);
+  display: flex; align-items: center; justify-content: center;
+  overflow: hidden; position: relative; cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+  background: var(--surface2);
+}
+.ref-cell:hover { border-color: var(--accent); background: rgba(0,113,227,0.02); }
+.ref-cell.has-img { border-style: solid; border-color: var(--border-light); }
+.ref-cell img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.ref-cell .ref-placeholder {
+  font-size: 10px; color: var(--text3); text-align: center;
+  line-height: 1.3; padding: 4px; pointer-events: none;
+}
+.ref-cell .ref-placeholder svg { display: block; margin: 0 auto 3px; opacity: 0.4; }
+.ref-cell .ref-remove {
+  position: absolute; top: 3px; right: 3px; width: 20px; height: 20px;
+  background: rgba(0,0,0,0.6); color: #fff; border: none; border-radius: 50%;
+  font-size: 12px; cursor: pointer; display: flex; align-items: center;
+  justify-content: center; opacity: 0; transition: opacity 0.15s;
+}
+.ref-cell:hover .ref-remove { opacity: 1; }
+.ref-cell.drag-hover { border-color: var(--accent); background: rgba(0,113,227,0.06); }
+
+/* =========== Drag handle =========== */
+.drag-handle {
+  display: flex; align-items: center; justify-content: center;
+  cursor: grab; color: var(--border); font-size: 16px;
+  user-select: none; -webkit-user-select: none;
+  touch-action: none; min-height: 44px;
+}
+.drag-handle:hover { color: var(--text3); }
+.drag-handle:active { cursor: grabbing; }
+.shot-row.dragging { opacity: 0.4; background: var(--surface); }
+.shot-row.drag-over { box-shadow: inset 0 -3px 0 var(--accent); }
+
+/* =========== VFX / Done / Actions =========== */
+.vfx-check { accent-color: var(--purple); width: 18px; height: 18px; cursor: pointer; }
+.done-btn {
+  width: 36px; height: 36px; border-radius: 50%;
+  border: 2px solid var(--border); background: var(--bg);
+  color: transparent; font-size: 16px; font-weight: 700;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s; flex-shrink: 0;
+}
+.done-btn:hover { border-color: var(--green); }
+.done-btn.checked {
+  border-color: var(--green); background: var(--green); color: #fff;
+  box-shadow: 0 2px 8px rgba(52,199,89,0.3);
+}
+.row-actions { display: flex; gap: 2px; padding: 2px; }
+.act-btn {
+  width: 24px; height: 24px; display: flex; align-items: center; justify-content: center;
+  background: none; border: 1px solid transparent; color: var(--border);
+  cursor: pointer; border-radius: 4px; font-size: 14px; transition: all 0.15s;
+}
+.act-btn:hover { color: var(--text3); background: var(--surface); }
+.act-btn.del:hover { color: var(--red); }
+
+/* Add shot */
+.add-shot {
+  width: 100%; padding: 10px; font-size: 14px; font-weight: 600;
+  background: var(--bg); color: var(--text3);
+  border: 1px dashed var(--border-light); border-top: none;
+  border-radius: 0 0 var(--radius) var(--radius);
+  cursor: pointer; transition: all 0.15s;
+}
+.add-shot:hover { color: var(--accent); background: rgba(0,113,227,0.02); }
+.add-seq { display: block; margin: 8px 0 32px; }
+
+/* Tips */
+.tips {
+  margin: 24px 0 40px; padding: 14px 18px;
+  background: var(--surface); border-radius: var(--radius);
+  border: 1px solid var(--border-light);
+  font-size: 13px; color: var(--text3); line-height: 1.6;
+}
+.tips strong { color: var(--text2); }
+
+/* =========== PDF Export mode =========== */
+.pdf-mode .header, .pdf-mode .toolbar, .pdf-mode .row-actions,
+.pdf-mode .drag-handle, .pdf-mode .add-shot, .pdf-mode .add-seq,
+.pdf-mode .tips, .pdf-mode .done-btn, .pdf-mode .vfx-check { display: none !important; }
+.pdf-mode { padding: 10px !important; }
+.pdf-mode .container { padding: 0; }
+
+.pdf-mode .shot-header {
+  grid-template-columns: var(--grid-cols-pdf) !important;
+}
+.pdf-mode .shot-row {
+  grid-template-columns: var(--grid-cols-pdf) !important;
+  min-height: 28px;
+  border-left: none !important;
+}
+.pdf-mode .ref-cell { height: 72px; border: 1px solid var(--border-light); cursor: default; }
+.pdf-mode .ref-cell img { object-fit: contain !important; }
+.pdf-mode .ref-cell .ref-placeholder { display: none; }
+.pdf-mode .ref-cell .ref-remove { display: none !important; }
+.pdf-mode .shot-row input,
+.pdf-mode .shot-row select,
+.pdf-mode .shot-row textarea {
+  font-size: 11px !important; padding: 2px 4px !important;
+  border: none !important; background: transparent !important;
+  box-shadow: none !important; -webkit-appearance: none; appearance: none;
+  pointer-events: none; background-image: none !important;
+}
+.pdf-mode .shot-row textarea { resize: none !important; overflow: hidden !important; }
+.pdf-mode .shot-header span { font-size: 9px !important; padding: 6px 4px !important; }
+.pdf-mode .cell { padding: 3px 4px !important; min-height: 24px !important; }
+.pdf-mode .shot-row.done { background: var(--green-bg) !important; border-left: 3px solid var(--green) !important; }
+.pdf-mode .seq-header { padding: 8px 12px; }
+.pdf-mode .seq-wrap { margin: 8px 0; }
+.pdf-mode .seq-del { display: none !important; }
+.pdf-mode .pdf-header { display: flex !important; justify-content: space-between; align-items: flex-start; padding: 12px 0; margin-bottom: 8px; border-bottom: 2px solid var(--text); }
+.pdf-header { display: none; }
+.pdf-mode .pdf-title { font-size: 22px; font-weight: 700; }
+.pdf-mode .pdf-meta { font-size: 12px; color: var(--text2); text-align: right; }
+
+/* =========== Responsive =========== */
+@media (max-width: 1024px) {
+  .shot-header { display: none; }
   .shot-row {
-    display: grid;
-    grid-template-columns: 36px 64px 72px minmax(88px,auto) 76px 110px 68px minmax(100px,auto) 1fr 1fr 120px 44px 56px 64px;
-    gap: 0; align-items: center;
-    border-bottom: 1px solid var(--border-light);
-    transition: background 0.15s;
-    border-left: 3px solid transparent;
-    min-height: 52px;
+    display: flex; flex-wrap: wrap; gap: 6px 10px;
+    padding: 10px 12px; grid-template-columns: unset;
   }
-  .shot-row:last-child { border-bottom: none; }
-  .shot-row:nth-child(even) { background: var(--surface2); }
-  .shot-row:hover { background: rgba(0,113,227,0.03); }
-  .shot-row.done { background: var(--green-bg); border-left-color: var(--green); }
-  .shot-row.done:hover { background: rgba(52,199,89,0.12); }
-
-  .shot-row .cell {
-    padding: 6px 8px; font-size: 15px; min-height: 44px;
-    display: flex; align-items: center; min-width: 0;
+  .shot-row .cell { min-height: auto; padding: 2px 0; }
+  .shot-row .cell-desc, .shot-row .cell-dial { width: 100%; }
+  .shot-row .cell-ref { width: 100%; }
+  .shot-row .cell-ref .ref-cell { max-height: 160px; aspect-ratio: 9/16; width: auto; height: auto; }
+  .shot-row label.mobile-label {
+    display: block; font-size: 10px; font-weight: 600;
+    color: var(--text3); text-transform: uppercase; letter-spacing: 0.3px; margin-bottom: 2px;
   }
-  .shot-row input[type="text"],
-  .shot-row select,
-  .shot-row textarea {
-    width: 100%; background: transparent;
-    border: 1px solid transparent; color: var(--text);
-    padding: 6px 8px; border-radius: 6px; font-size: 15px;
-    transition: border-color 0.15s, box-shadow 0.15s;
-  }
-  .shot-row input[type="text"]:focus,
-  .shot-row select:focus,
-  .shot-row textarea:focus {
-    border-color: var(--accent); outline: none;
-    box-shadow: 0 0 0 3px rgba(0,113,227,0.1);
-    background: var(--bg);
-  }
-  .shot-row select { color: var(--text2); cursor: pointer; padding-right: 4px; }
-  .shot-row textarea {
-    resize: vertical; min-height: 40px; line-height: 1.4;
-    font-size: 14px;
-  }
-
-  /* Reference image cell — fixed height, 9:16 proportions */
-  .ref-cell {
-    width: 100%; height: 140px;
-    border: 2px dashed var(--border-light); border-radius: var(--radius-sm);
-    display: flex; align-items: center; justify-content: center;
-    overflow: hidden; position: relative; cursor: pointer;
-    transition: border-color 0.2s, background 0.2s;
-    background: var(--surface2);
-  }
-  .ref-cell:hover { border-color: var(--accent); background: rgba(0,113,227,0.02); }
-  .ref-cell.has-img { border-style: solid; border-color: var(--border-light); }
-  .ref-cell img {
-    width: 100%; height: 100%; object-fit: cover; display: block;
-  }
-  .ref-cell .ref-placeholder {
-    font-size: 10px; color: var(--text3); text-align: center;
-    line-height: 1.3; padding: 4px; pointer-events: none;
-  }
-  .ref-cell .ref-placeholder svg { display: block; margin: 0 auto 3px; opacity: 0.4; }
-  .ref-cell .ref-remove {
-    position: absolute; top: 2px; right: 2px; width: 18px; height: 18px;
-    background: rgba(0,0,0,0.6); color: #fff; border: none; border-radius: 50%;
-    font-size: 12px; cursor: pointer; display: flex; align-items: center;
-    justify-content: center; opacity: 0; transition: opacity 0.15s;
-  }
-  .ref-cell:hover .ref-remove { opacity: 1; }
-  .ref-cell.drag-hover { border-color: var(--accent); background: rgba(0,113,227,0.06); }
-
-  /* Drag handle */
-  .drag-handle {
-    display: flex; align-items: center; justify-content: center;
-    padding: 4px 6px; cursor: grab; color: var(--border);
-    font-size: 18px; user-select: none; -webkit-user-select: none;
-    touch-action: none; min-height: 44px;
-  }
-  .drag-handle:hover { color: var(--text3); }
-  .drag-handle:active { cursor: grabbing; }
-  .shot-row.dragging { opacity: 0.4; background: var(--surface); }
-  .shot-row.drag-over { box-shadow: inset 0 -3px 0 var(--accent); }
-
-  /* VFX checkbox */
-  .vfx-check { accent-color: var(--purple); width: 18px; height: 18px; cursor: pointer; }
-
-  /* Done button — 44px Apple min touch target */
-  .done-btn {
-    width: 44px; height: 44px; border-radius: 50%;
-    border: 2px solid var(--border); background: var(--bg);
-    color: transparent; font-size: 18px; font-weight: 700;
-    cursor: pointer; display: flex; align-items: center; justify-content: center;
-    transition: all 0.2s; flex-shrink: 0;
-  }
-  .done-btn:hover { border-color: var(--green); }
-  .done-btn.checked {
-    border-color: var(--green); background: var(--green); color: #fff;
-    box-shadow: 0 2px 8px rgba(52,199,89,0.3);
-  }
-
-  /* Row actions */
-  .row-actions { display: flex; gap: 2px; padding: 4px; }
-  .act-btn {
-    width: 28px; height: 28px; display: flex; align-items: center; justify-content: center;
-    background: none; border: 1px solid transparent; color: var(--border);
-    cursor: pointer; border-radius: 5px; font-size: 14px; transition: all 0.15s;
-  }
-  .act-btn:hover { color: var(--text3); background: var(--surface); }
-  .act-btn.del:hover { color: var(--red); }
-
-  /* Add shot button */
-  .add-shot {
-    width: 100%; padding: 10px; font-size: 14px; font-weight: 600;
-    background: var(--bg); color: var(--text3);
-    border: 1px dashed var(--border-light); border-top: none;
-    border-radius: 0 0 var(--radius) var(--radius);
-    cursor: pointer; transition: all 0.15s;
-  }
-  .add-shot:hover { color: var(--accent); background: rgba(0,113,227,0.02); }
-
-  /* Add sequence */
-  .add-seq { display: block; margin: 8px 0 32px; }
-
-  /* Tips */
-  .tips {
-    margin: 24px 0 40px; padding: 14px 18px;
-    background: var(--surface); border-radius: var(--radius);
-    border: 1px solid var(--border-light);
-    font-size: 13px; color: var(--text3); line-height: 1.6;
-  }
-  .tips strong { color: var(--text2); }
-
-  /* ===== PDF Export styles ===== */
-  .pdf-mode .header, .pdf-mode .toolbar, .pdf-mode .row-actions,
-  .pdf-mode .drag-handle, .pdf-mode .add-shot, .pdf-mode .add-seq,
-  .pdf-mode .tips, .pdf-mode .done-btn, .pdf-mode .vfx-check { display: none !important; }
-  .pdf-mode { padding: 10px !important; }
-  .pdf-mode .container { padding: 0; }
-  /* Grid: no drag handle, no VFX, no done, no actions — Location & Subject scale, Reference visible */
-  .pdf-mode .shot-row { grid-template-columns: 0 50px 60px minmax(65px,auto) 65px 100px 60px minmax(80px,auto) 1fr 1fr 80px 0 0 0 !important; min-height: 30px; border-left: none !important; align-items: center !important; }
-  .pdf-mode .shot-header { grid-template-columns: 0 50px 60px minmax(65px,auto) 65px 100px 60px minmax(80px,auto) 1fr 1fr 80px 0 0 0 !important; border-left: none !important; }
-  .pdf-mode .ref-cell { height: 80px; border: 1px solid var(--border-light); cursor: default; }
-  .pdf-mode .ref-cell img { object-fit: contain !important; }
-  .pdf-mode .ref-cell .ref-placeholder { display: none; }
-  .pdf-mode .ref-cell .ref-remove { display: none !important; }
-  .pdf-mode .shot-row input, .pdf-mode .shot-row select, .pdf-mode .shot-row textarea {
-    font-size: 11px !important; padding: 2px 4px !important;
-    border: none !important; background: transparent !important; box-shadow: none !important;
-    -webkit-appearance: none; appearance: none; pointer-events: none;
-  }
-  .pdf-mode .shot-row select { background-image: none !important; }
-  .pdf-mode .shot-row textarea { resize: none !important; overflow: hidden !important; }
-  .pdf-mode .shot-header span { font-size: 9px !important; padding: 6px 4px !important; }
-  .pdf-mode .shot-row .cell { padding: 3px 4px !important; min-height: 28px !important; }
-  .pdf-mode .shot-row.done { background: var(--green-bg) !important; }
-  .pdf-mode .seq-header { padding: 8px 12px; }
-  .pdf-mode .seq-wrap { margin: 8px 0; }
-  .pdf-mode .seq-del { display: none !important; }
-  .pdf-mode .pdf-header { display: flex !important; justify-content: space-between; align-items: flex-start; padding: 12px 0; margin-bottom: 8px; border-bottom: 2px solid var(--text); }
-  .pdf-header { display: none; }
-  .pdf-mode .pdf-title { font-size: 22px; font-weight: 700; }
-  .pdf-mode .pdf-meta { font-size: 12px; color: var(--text2); text-align: right; }
-
-  /* ===== Responsive: tablet/phone ===== */
-  @media (max-width: 1024px) {
-    .shot-header { display: none; }
-    .shot-row {
-      display: flex; flex-wrap: wrap; gap: 6px 10px;
-      padding: 10px 12px; grid-template-columns: unset;
-    }
-    .shot-row .cell { min-height: auto; padding: 2px 0; }
-    .shot-row .cell-desc, .shot-row .cell-dial { width: 100%; }
-    .shot-row .cell-desc textarea, .shot-row .cell-dial textarea { width: 100%; }
-    .shot-row .cell-ref { width: 100%; }
-    .shot-row .cell-ref .ref-cell { max-height: 160px; aspect-ratio: 9/16; width: auto; }
-    .shot-row label.mobile-label { display: block; font-size: 10px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: 0.3px; margin-bottom: 2px; }
-  }
-  @media (min-width: 1025px) {
-    .mobile-label { display: none !important; }
-  }
+}
+@media (min-width: 1025px) {
+  .mobile-label { display: none !important; }
+}
 </style>
 </head>
 <body>
 <div id="app"></div>
 <script>
-const SHOT_SIZES = ["","EWS","WS","FS","MFS","MS","MCU","CU","ECU","Detail","POV","OTS","Insert"];
-const ANGLES = ["","Eye Level","Low Angle","High Angle","Dutch","Bird's Eye","Worm's Eye","Over Shoulder"];
-const INT_EXT = ["","INT","EXT","INT/EXT"];
-const AUDIO = ["","Sync","MOS","VO","Atmo","SFX"];
+/* ==========================================================================
+   SHOTLIST â Application Logic
+   ========================================================================== */
+
+const SHOT_SIZES = ["", "EWS", "WS", "FS", "MFS", "MS", "MCU", "CU", "ECU", "Detail", "POV", "OTS", "Insert"];
+const ANGLES = ["", "Eye Level", "Low Angle", "High Angle", "Dutch", "Bird's Eye", "Worm's Eye", "Over Shoulder"];
+const INT_EXT = ["", "INT", "EXT", "INT/EXT"];
+const AUDIO = ["", "Sync", "MOS", "VO", "Atmo", "SFX"];
 
 const SAMPLE = {
-  title:"UI Hero E02", date:"2025-08-19", director:"", dop:"",
-  sequences:[{
-    id:"seq-1", name:"Hero 01",
-    shots:[
-      {id:"s1",shotNum:"01",intExt:"INT",location:"Loc 1",shotSize:"WS",shotAngle:"Eye Level",audio:"MOS",subject:"Thomas",description:"",dialogue:"",done:false,vfx:false,refImg:""},
-      {id:"s2",shotNum:"02",intExt:"INT",location:"Loc 2",shotSize:"MS",shotAngle:"Low Angle",audio:"Sync",subject:"Thomas",description:"",dialogue:"",done:false,vfx:false,refImg:""},
-      {id:"s3",shotNum:"03",intExt:"INT",location:"Loc 2",shotSize:"WS",shotAngle:"Eye Level",audio:"MOS",subject:"Thomas",description:"",dialogue:"",done:false,vfx:false,refImg:""},
-      {id:"s3a",shotNum:"03A",intExt:"INT",location:"Loc 2",shotSize:"CU",shotAngle:"Eye Level",audio:"MOS",subject:"Lego",description:"",dialogue:"",done:false,vfx:true,refImg:""},
-      {id:"s4",shotNum:"04",intExt:"INT",location:"Loc 2",shotSize:"ECU",shotAngle:"Eye Level",audio:"Sync",subject:"Thomas",description:"",dialogue:"",done:false,vfx:false,refImg:""},
-      {id:"s5",shotNum:"05",intExt:"INT",location:"Loc 2",shotSize:"MS",shotAngle:"Eye Level",audio:"Sync",subject:"Thomas",description:"",dialogue:"",done:false,vfx:false,refImg:""},
-      {id:"s6",shotNum:"06",intExt:"INT",location:"Loc 2",shotSize:"MS",shotAngle:"Eye Level",audio:"Sync",subject:"Thomas",description:"",dialogue:"",done:false,vfx:false,refImg:""},
-      {id:"s7",shotNum:"07",intExt:"INT",location:"Loc 3",shotSize:"WS",shotAngle:"Eye Level",audio:"Sync",subject:"Thomas",description:"",dialogue:"",done:false,vfx:false,refImg:""},
-      {id:"s8",shotNum:"08",intExt:"INT",location:"Loc 3",shotSize:"CU",shotAngle:"Eye Level",audio:"Sync",subject:"Thomas",description:"",dialogue:"",done:false,vfx:false,refImg:""},
-      {id:"s9",shotNum:"09",intExt:"INT",location:"",shotSize:"",shotAngle:"",audio:"MOS",subject:"",description:"",dialogue:"",done:false,vfx:false,refImg:""},
-      {id:"s10",shotNum:"10",intExt:"INT",location:"Loc 2",shotSize:"WS",shotAngle:"Eye Level",audio:"Sync",subject:"Thomas",description:"",dialogue:"",done:false,vfx:false,refImg:""},
-      {id:"s11",shotNum:"11",intExt:"INT",location:"Loc 2",shotSize:"MS",shotAngle:"High Angle",audio:"Sync",subject:"Thomas",description:"",dialogue:"",done:false,vfx:false,refImg:""},
-      {id:"s12",shotNum:"12",intExt:"INT",location:"Loc 4",shotSize:"MS",shotAngle:"Eye Level",audio:"MOS",subject:"Thomas",description:"",dialogue:"",done:false,vfx:false,refImg:""},
-      {id:"s13",shotNum:"13",intExt:"INT",location:"Loc 4",shotSize:"MS",shotAngle:"Eye Level",audio:"Sync",subject:"Thomas",description:"",dialogue:"",done:false,vfx:false,refImg:""},
-      {id:"s13a",shotNum:"13A",intExt:"INT",location:"",shotSize:"CU",shotAngle:"",audio:"MOS",subject:"",description:"",dialogue:"",done:false,vfx:false,refImg:""},
-      {id:"s14",shotNum:"14",intExt:"INT",location:"",shotSize:"",shotAngle:"",audio:"",subject:"",description:"",dialogue:"",done:false,vfx:false,refImg:""},
-      {id:"s15",shotNum:"15",intExt:"INT",location:"Loc 4",shotSize:"MS",shotAngle:"Eye Level",audio:"Sync",subject:"Thomas",description:"",dialogue:"",done:false,vfx:false,refImg:""},
-      {id:"s16",shotNum:"16",intExt:"INT",location:"Loc 2",shotSize:"WS",shotAngle:"Eye Level",audio:"Sync",subject:"Thomas",description:"",dialogue:"",done:false,vfx:false,refImg:""},
-      {id:"s16a",shotNum:"16A",intExt:"INT",location:"Loc 2",shotSize:"MS",shotAngle:"Eye Level",audio:"Sync",subject:"Thomas",description:"",dialogue:"",done:false,vfx:false,refImg:""},
-      {id:"s17",shotNum:"17",intExt:"EXT",location:"",shotSize:"EWS",shotAngle:"",audio:"MOS",subject:"Thomas",description:"",dialogue:"",done:false,vfx:false,refImg:""},
-      {id:"s18",shotNum:"18",intExt:"INT",location:"Loc 2",shotSize:"CU",shotAngle:"Eye Level",audio:"Sync",subject:"Thomas",description:"",dialogue:"",done:false,vfx:false,refImg:""},
-      {id:"s18a",shotNum:"18alt",intExt:"INT",location:"Loc 2",shotSize:"MS",shotAngle:"Eye Level",audio:"Sync",subject:"Thomas + Team",description:"",dialogue:"",done:false,vfx:false,refImg:""},
+  title: "UI Hero E02",
+  date: "2025-08-19",
+  director: "",
+  dop: "",
+  sequences: [{
+    id: "seq-1",
+    name: "Hero 02",
+    shots: [
+      { id:"s1", shotNum:"01", intExt:"INT", location:"Loc 1", shotSize:"WS", shotAngle:"Eye Level", audio:"MOS", subject:"Thomas", description:"", dialogue:"", done:false, vfx:false, refImg:"" },
+      { id:"s2", shotNum:"02", intExt:"INT", location:"Loc 2", shotSize:"MS", shotAngle:"Low Angle", audio:"Sync", subject:"Thomas", description:"", dialogue:"", done:false, vfx:false, refImg:"" },
+      { id:"s3", shotNum:"03", intExt:"INT", location:"Loc 2", shotSize:"WS", shotAngle:"Eye Level", audio:"MOS", subject:"Thomas", description:"", dialogue:"", done:false, vfx:false, refImg:"" },
+      { id:"s3a", shotNum:"03A", intExt:"INT", location:"Loc 2", shotSize:"CU", shotAngle:"Eye Level", audio:"MOS", subject:"Lego", description:"", dialogue:"", done:false, vfx:true, refImg:"" },
+      { id:"s4", shotNum:"04", intExt:"INT", location:"Loc 2", shotSize:"ECU", shotAngle:"Eye Level", audio:"Sync", subject:"Thomas", description:"", dialogue:"", done:false, vfx:false, refImg:"" },
+      { id:"s5", shotNum:"05", intExt:"INT", location:"Loc 2", shotSize:"MS", shotAngle:"Eye Level", audio:"Sync", subject:"Thomas", description:"", dialogue:"", done:false, vfx:false, refImg:"" },
+      { id:"s6", shotNum:"06", intExt:"INT", location:"Loc 2", shotSize:"MS", shotAngle:"Eye Level", audio:"Sync", subject:"Thomas", description:"", dialogue:"", done:false, vfx:false, refImg:"" },
+      { id:"s7", shotNum:"07", intExt:"INT", location:"Loc 3", shotSize:"WS", shotAngle:"Eye Level", audio:"Sync", subject:"Thomas", description:"", dialogue:"", done:false, vfx:false, refImg:"" },
+      { id:"s8", shotNum:"08", intExt:"INT", location:"Loc 3", shotSize:"CU", shotAngle:"Eye Level", audio:"Sync", subject:"Thomas", description:"", dialogue:"", done:false, vfx:false, refImg:"" },
+      { id:"s9", shotNum:"09", intExt:"INT", location:"", shotSize:"", shotAngle:"", audio:"MOS", subject:"", description:"", dialogue:"", done:false, vfx:false, refImg:"" },
+      { id:"s10", shotNum:"10", intExt:"INT", location:"Loc 2", shotSize:"WS", shotAngle:"Eye Level", audio:"Sync", subject:"Thomas", description:"", dialogue:"", done:false, vfx:false, refImg:"" },
+      { id:"s11", shotNum:"11", intExt:"INT", location:"Loc 2", shotSize:"MS", shotAngle:"High Angle", audio:"Sync", subject:"Thomas", description:"", dialogue:"", done:false, vfx:false, refImg:"" },
+      { id:"s12", shotNum:"12", intExt:"INT", location:"Loc 4", shotSize:"MS", shotAngle:"Eye Level", audio:"MOS", subject:"Thomas", description:"", dialogue:"", done:false, vfx:false, refImg:"" },
+      { id:"s13", shotNum:"13", intExt:"INT", location:"Loc 4", shotSize:"MS", shotAngle:"Eye Level", audio:"Sync", subject:"Thomas", description:"", dialogue:"", done:false, vfx:false, refImg:"" },
+      { id:"s13a", shotNum:"13A", intExt:"INT", location:"", shotSize:"CU", shotAngle:"", audio:"MOS", subject:"", description:"", dialogue:"", done:false, vfx:false, refImg:"" },
+      { id:"s14", shotNum:"14", intExt:"INT", location:"", shotSize:"", shotAngle:"", audio:"", subject:"", description:"", dialogue:"", done:false, vfx:false, refImg:"" },
+      { id:"s15", shotNum:"15", intExt:"INT", location:"Loc 4", shotSize:"MS", shotAngle:"Eye Level", audio:"Sync", subject:"Thomas", description:"", dialogue:"", done:false, vfx:false, refImg:"" },
+      { id:"s16", shotNum:"16", intExt:"INT", location:"Loc 2", shotSize:"WS", shotAngle:"Eye Level", audio:"Sync", subject:"Thomas", description:"", dialogue:"", done:false, vfx:false, refImg:"" },
+      { id:"s16a", shotNum:"16A", intExt:"INT", location:"Loc 2", shotSize:"MS", shotAngle:"Eye Level", audio:"Sync", subject:"Thomas", description:"", dialogue:"", done:false, vfx:false, refImg:"" },
+      { id:"s17", shotNum:"17", intExt:"EXT", location:"", shotSize:"EWS", shotAngle:"", audio:"MOS", subject:"Thomas", description:"", dialogue:"", done:false, vfx:false, refImg:"" },
+      { id:"s18", shotNum:"18", intExt:"INT", location:"Loc 2", shotSize:"CU", shotAngle:"Eye Level", audio:"Sync", subject:"Thomas", description:"", dialogue:"", done:false, vfx:false, refImg:"" },
+      { id:"s18a", shotNum:"18alt", intExt:"INT", location:"Loc 2", shotSize:"MS", shotAngle:"Eye Level", audio:"Sync", subject:"Thomas + Team", description:"", dialogue:"", done:false, vfx:false, refImg:"" }
     ]
   }]
 };
@@ -404,75 +415,78 @@ let state = JSON.parse(JSON.stringify(SAMPLE));
 let filterLoc = "";
 let viewMode = "script";
 
-function gid(){ return 'id-'+Math.random().toString(36).slice(2,9); }
-function save(){ try{ localStorage.setItem('shotlist_v2', JSON.stringify(state)); }catch(e){} }
-function load(){ try{ const d=localStorage.getItem('shotlist_v2'); if(d){ state=JSON.parse(d); } }catch(e){} }
-function getAllShots(){ return state.sequences.flatMap(s=>s.shots); }
-function getLocations(){ return [...new Set(getAllShots().map(s=>s.location).filter(Boolean))].sort(); }
+/* ---------- Helpers ---------- */
+function gid() { return 'id-' + Math.random().toString(36).slice(2, 9); }
+function save() { try { localStorage.setItem('shotlist_v2', JSON.stringify(state)); } catch(e) {} }
+function load() { try { const d = localStorage.getItem('shotlist_v2'); if (d) state = JSON.parse(d); } catch(e) {} }
+function getAllShots() { return state.sequences.flatMap(s => s.shots); }
+function getLocations() { return [...new Set(getAllShots().map(s => s.location).filter(Boolean))].sort(); }
+function esc(s) { return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
-function moveShot(si,oi,dir){
-  const shots=state.sequences[si].shots; const ni=oi+dir;
-  if(ni<0||ni>=shots.length) return;
-  [shots[oi],shots[ni]]=[shots[ni],shots[oi]];
-  save(); render();
+function makeOpts(arr, sel) {
+  return arr.map(o => '<option value="' + o + '"' + (o === sel ? ' selected' : '') + '>' + (o || '\u2014') + '</option>').join('');
 }
-function toggleDone(si,oi){ state.sequences[si].shots[oi].done=!state.sequences[si].shots[oi].done; save(); render(); }
-function updateField(si,oi,f,v){ state.sequences[si].shots[oi][f]=v; save(); }
-function updateMeta(f,v){ state[f]=v; save(); }
-function updateSeqName(si,v){ state.sequences[si].name=v; save(); }
 
-function addShot(si){
-  const seq=state.sequences[si];
-  const last=seq.shots.length>0?seq.shots[seq.shots.length-1].shotNum:"00";
-  const next=String(parseInt(last)+1||seq.shots.length+1).padStart(2,'0');
-  seq.shots.push({id:gid(),shotNum:next,intExt:"INT",location:"",shotSize:"MS",shotAngle:"Eye Level",audio:"Sync",subject:"",description:"",dialogue:"",refImg:"",done:false,vfx:false});
-  save(); render();
-}
-function deleteShot(si,oi){ state.sequences[si].shots.splice(oi,1); save(); render(); }
-function dupShot(si,oi){
-  const o=state.sequences[si].shots[oi];
-  state.sequences[si].shots.splice(oi+1,0,{...o,id:gid(),shotNum:o.shotNum+'A',done:false,refImg:""});
-  save(); render();
-}
-function addSequence(){
-  state.sequences.push({id:gid(),name:'Sequence '+(state.sequences.length+1),shots:[{id:gid(),shotNum:'01',intExt:'INT',location:'',shotSize:'MS',shotAngle:'Eye Level',audio:'Sync',subject:'',description:'',dialogue:'',refImg:'',done:false,vfx:false}]});
-  save(); render();
-}
-function deleteSequence(si){ if(state.sequences.length<=1) return; state.sequences.splice(si,1); save(); render(); }
+/* ---------- State mutations ---------- */
+function updateField(si, oi, f, v) { state.sequences[si].shots[oi][f] = v; save(); }
+function updateMeta(f, v) { state[f] = v; save(); }
+function updateSeqName(si, v) { state.sequences[si].name = v; save(); }
+function toggleDone(si, oi) { state.sequences[si].shots[oi].done = !state.sequences[si].shots[oi].done; save(); render(); }
 
-function exportJSON(){
-  const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});
-  const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
-  a.download=(state.title||'shotlist').replace(/\s+/g,'_')+'.json';
+function addShot(si) {
+  const seq = state.sequences[si];
+  const last = seq.shots.length > 0 ? seq.shots[seq.shots.length - 1].shotNum : "00";
+  const next = String(parseInt(last) + 1 || seq.shots.length + 1).padStart(2, '0');
+  seq.shots.push({ id: gid(), shotNum: next, intExt: "INT", location: "", shotSize: "MS", shotAngle: "Eye Level", audio: "Sync", subject: "", description: "", dialogue: "", refImg: "", done: false, vfx: false });
+  save(); render();
+}
+function deleteShot(si, oi) { state.sequences[si].shots.splice(oi, 1); save(); render(); }
+function dupShot(si, oi) {
+  const o = state.sequences[si].shots[oi];
+  state.sequences[si].shots.splice(oi + 1, 0, { ...o, id: gid(), shotNum: o.shotNum + 'A', done: false, refImg: "" });
+  save(); render();
+}
+function addSequence() {
+  state.sequences.push({ id: gid(), name: 'Sequence ' + (state.sequences.length + 1), shots: [{ id: gid(), shotNum: '01', intExt: 'INT', location: '', shotSize: 'MS', shotAngle: 'Eye Level', audio: 'Sync', subject: '', description: '', dialogue: '', refImg: '', done: false, vfx: false }] });
+  save(); render();
+}
+function deleteSequence(si) { if (state.sequences.length <= 1) return; state.sequences.splice(si, 1); save(); render(); }
+function resetData() { if (confirm('Reset to sample data?')) { state = JSON.parse(JSON.stringify(SAMPLE)); save(); render(); } }
+
+/* ---------- Import / Export ---------- */
+function exportJSON() {
+  const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+  a.download = (state.title || 'shotlist').replace(/\s+/g, '_') + '.json';
   a.click(); URL.revokeObjectURL(a.href);
 }
-function importJSON(){
-  const inp=document.createElement('input'); inp.type='file'; inp.accept='.json';
-  inp.onchange=e=>{const f=e.target.files[0]; if(!f) return;
-    const r=new FileReader(); r.onload=ev=>{try{state=JSON.parse(ev.target.result);save();render();}catch(err){alert('Invalid JSON');}};
-    r.readAsText(f);
-  }; inp.click();
-}
-function exportPDF(){
-  const app=document.getElementById('app'); app.classList.add('pdf-mode');
-  html2pdf().set({
-    margin:[8,8,8,8], filename:(state.title||'shotlist').replace(/\s+/g,'_')+'.pdf',
-    image:{type:'jpeg',quality:0.95}, html2canvas:{scale:2,useCORS:true,backgroundColor:'#ffffff'},
-    jsPDF:{unit:'mm',format:'a4',orientation:'landscape'}
-  }).from(app).save().then(()=>{ app.classList.remove('pdf-mode'); });
-}
-function resetData(){ if(confirm('Reset to sample data?')){state=JSON.parse(JSON.stringify(SAMPLE));save();render();} }
-
-function makeOpts(arr,sel){
-  return arr.map(o=>'<option value="'+o+'"'+(o===sel?' selected':'')+'>'+( o||'\u2014')+'</option>').join('');
-}
-function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-
-// Reference image handling
-function handleRefClick(si, oi) {
-  const inp = document.createElement('input'); inp.type='file'; inp.accept='image/*';
+function importJSON() {
+  const inp = document.createElement('input'); inp.type = 'file'; inp.accept = '.json';
   inp.onchange = e => {
-    const f = e.target.files[0]; if(!f) return;
+    const f = e.target.files[0]; if (!f) return;
+    const r = new FileReader();
+    r.onload = ev => { try { state = JSON.parse(ev.target.result); save(); render(); } catch(err) { alert('Invalid JSON'); } };
+    r.readAsText(f);
+  };
+  inp.click();
+}
+function exportPDF() {
+  const app = document.getElementById('app');
+  app.classList.add('pdf-mode');
+  html2pdf().set({
+    margin: [8, 8, 8, 8],
+    filename: (state.title || 'shotlist').replace(/\s+/g, '_') + '.pdf',
+    image: { type: 'jpeg', quality: 0.95 },
+    html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff' },
+    jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
+  }).from(app).save().then(() => { app.classList.remove('pdf-mode'); });
+}
+
+/* ---------- Reference image handling ---------- */
+function handleRefClick(si, oi) {
+  const inp = document.createElement('input'); inp.type = 'file'; inp.accept = 'image/*';
+  inp.onchange = e => {
+    const f = e.target.files[0]; if (!f) return;
     const reader = new FileReader();
     reader.onload = ev => { state.sequences[si].shots[oi].refImg = ev.target.result; save(); render(); };
     reader.readAsDataURL(f);
@@ -488,153 +502,201 @@ function refDragLeave(e) { e.currentTarget.classList.remove('drag-hover'); }
 function refDrop(e, si, oi) {
   e.preventDefault(); e.stopPropagation(); e.currentTarget.classList.remove('drag-hover');
   const f = e.dataTransfer.files[0];
-  if(f && f.type.startsWith('image/')) {
+  if (f && f.type.startsWith('image/')) {
     const reader = new FileReader();
     reader.onload = ev => { state.sequences[si].shots[oi].refImg = ev.target.result; save(); render(); };
     reader.readAsDataURL(f);
   }
 }
 
-function render(){
-  const all=getAllShots(), total=all.length, done=all.filter(s=>s.done).length;
-  const pct=total>0?(done/total*100):0;
-  const locs=getLocations();
-  let h='';
+/* ---------- Render ---------- */
+function render() {
+  const all = getAllShots();
+  const total = all.length;
+  const done = all.filter(s => s.done).length;
+  const pct = total > 0 ? (done / total * 100) : 0;
+  const locs = getLocations();
+  let h = '';
 
-  // PDF header
-  h+='<div class="pdf-header container"><div><div class="pdf-title">'+esc(state.title)+'</div><div style="font-size:13px;color:var(--text2);margin-top:2px">'+esc(state.date)+(state.director?' · Dir: '+esc(state.director):'')+(state.dop?' · DoP: '+esc(state.dop):'')+'</div></div><div class="pdf-meta">'+done+' / '+total+' shots<br>'+new Date().toLocaleDateString()+'</div></div>';
+  /* PDF header (hidden until pdf-mode) */
+  h += '<div class="pdf-header container"><div><div class="pdf-title">' + esc(state.title) + '</div>';
+  h += '<div style="font-size:13px;color:var(--text2);margin-top:2px">' + esc(state.date);
+  if (state.director) h += ' \u00b7 Dir: ' + esc(state.director);
+  if (state.dop) h += ' \u00b7 DoP: ' + esc(state.dop);
+  h += '</div></div>';
+  h += '<div class="pdf-meta">' + done + ' / ' + total + ' shots<br>' + new Date().toLocaleDateString() + '</div></div>';
 
-  // Header
-  h+='<div class="header"><div class="header-inner">';
-  h+='<div class="header-top">';
-  h+='<input class="project-title" value="'+esc(state.title)+'" placeholder="Project Title" onchange="updateMeta(\'title\',this.value);render()">';
-  h+='<div class="progress-wrap"><span class="progress-text"><strong>'+done+'</strong> / '+total+'</span><div class="progress-bar"><div class="progress-fill" style="width:'+pct+'%;background:'+(pct>=100?'var(--green)':'var(--orange)')+'"></div></div></div>';
-  h+='</div>';
-  h+='<div class="meta-row">';
-  h+='<span class="meta-label">Date <input type="date" class="meta-input" value="'+esc(state.date)+'" onchange="updateMeta(\'date\',this.value)"></span>';
-  h+='<span class="meta-label">Director <input class="meta-input" value="'+esc(state.director)+'" placeholder="\u2014" onchange="updateMeta(\'director\',this.value)"></span>';
-  h+='<span class="meta-label">DoP <input class="meta-input" value="'+esc(state.dop)+'" placeholder="\u2014" onchange="updateMeta(\'dop\',this.value)"></span>';
-  h+='</div>';
-  h+='</div></div>';
+  /* Header */
+  h += '<div class="header"><div class="header-inner">';
+  h += '<div class="header-top">';
+  h += '<input class="project-title" value="' + esc(state.title) + '" placeholder="Project Title" onchange="updateMeta(\'title\',this.value);render()">';
+  h += '<div class="progress-wrap"><span class="progress-text"><strong>' + done + '</strong> / ' + total + '</span>';
+  h += '<div class="progress-bar"><div class="progress-fill" style="width:' + pct + '%;background:' + (pct >= 100 ? 'var(--green)' : 'var(--orange)') + '"></div></div></div>';
+  h += '</div>';
+  h += '<div class="meta-row">';
+  h += '<span class="meta-label">Date <input type="date" class="meta-input" value="' + esc(state.date) + '" onchange="updateMeta(\'date\',this.value)"></span>';
+  h += '<span class="meta-label">Director <input class="meta-input" value="' + esc(state.director) + '" placeholder="\u2014" onchange="updateMeta(\'director\',this.value)"></span>';
+  h += '<span class="meta-label">DoP <input class="meta-input" value="' + esc(state.dop) + '" placeholder="\u2014" onchange="updateMeta(\'dop\',this.value)"></span>';
+  h += '</div></div></div>';
 
-  // Toolbar
-  h+='<div class="toolbar">';
-  h+='<select class="filter-select" onchange="filterLoc=this.value;render()"><option value="">All Locations</option>';
-  locs.forEach(l=>{h+='<option value="'+esc(l)+'"'+(filterLoc===l?' selected':'')+'>'+esc(l)+'</option>';});
-  h+='</select>';
-  h+='<div class="btn-group">';
-  [{k:'script',l:'Script Order'},{k:'location',l:'By Location'},{k:'status',l:'By Status'}].forEach(m=>{
-    h+='<button class="btn-tab'+(viewMode===m.k?' active':'')+'" onclick="viewMode=\''+m.k+'\';render()">'+m.l+'</button>';
+  /* Toolbar */
+  h += '<div class="toolbar">';
+  h += '<select class="filter-select" onchange="filterLoc=this.value;render()"><option value="">All Locations</option>';
+  locs.forEach(l => { h += '<option value="' + esc(l) + '"' + (filterLoc === l ? ' selected' : '') + '>' + esc(l) + '</option>'; });
+  h += '</select>';
+  h += '<div class="btn-group">';
+  [{ k:'script', l:'Script Order' }, { k:'location', l:'By Location' }, { k:'status', l:'By Status' }].forEach(m => {
+    h += '<button class="btn-tab' + (viewMode === m.k ? ' active' : '') + '" onclick="viewMode=\'' + m.k + '\';render()">' + m.l + '</button>';
   });
-  h+='</div>';
-  h+='<span class="spacer"></span>';
-  h+='<button class="btn" onclick="importJSON()">Import</button>';
-  h+='<button class="btn" onclick="exportJSON()">Export JSON</button>';
-  h+='<button class="btn" onclick="exportPDF()">Export PDF</button>';
-  h+='<button class="btn" onclick="addSequence()">+ Sequence</button>';
-  h+='</div>';
+  h += '</div>';
+  h += '<span class="spacer"></span>';
+  h += '<button class="btn" onclick="importJSON()">Import</button>';
+  h += '<button class="btn" onclick="exportJSON()">Export JSON</button>';
+  h += '<button class="btn" onclick="exportPDF()">Export PDF</button>';
+  h += '<button class="btn" onclick="addSequence()">+ Sequence</button>';
+  h += '</div>';
 
-  // Sequences
-  h+='<div class="container">';
-  state.sequences.forEach((seq,si)=>{
-    let shots=seq.shots.map((sh,i)=>({...sh,_oi:i}));
-    if(filterLoc) shots=shots.filter(s=>s.location===filterLoc);
-    if(viewMode==='location') shots.sort((a,b)=>a.location.localeCompare(b.location));
-    else if(viewMode==='status') shots.sort((a,b)=>a.done===b.done?0:a.done?1:-1);
-    const seqDone=seq.shots.filter(s=>s.done).length;
+  /* Sequences */
+  h += '<div class="container">';
+  state.sequences.forEach((seq, si) => {
+    let shots = seq.shots.map((sh, i) => ({ ...sh, _oi: i }));
+    if (filterLoc) shots = shots.filter(s => s.location === filterLoc);
+    if (viewMode === 'location') shots.sort((a, b) => a.location.localeCompare(b.location));
+    else if (viewMode === 'status') shots.sort((a, b) => a.done === b.done ? 0 : a.done ? 1 : -1);
+    const seqDone = seq.shots.filter(s => s.done).length;
 
-    h+='<div class="seq-wrap">';
-    h+='<div class="seq-header">';
-    h+='<span class="seq-badge">SEQ '+(si+1)+'</span>';
-    h+='<input class="seq-name" value="'+esc(seq.name)+'" onchange="updateSeqName('+si+',this.value)">';
-    h+='<span class="seq-stats">'+seqDone+' / '+seq.shots.length+' done</span>';
-    if(state.sequences.length>1) h+='<button class="seq-del" onclick="deleteSequence('+si+')" title="Delete sequence">&times;</button>';
-    h+='</div>';
+    h += '<div class="seq-wrap">';
+    h += '<div class="seq-header">';
+    h += '<span class="seq-badge">SEQ ' + (si + 1) + '</span>';
+    h += '<input class="seq-name" value="' + esc(seq.name) + '" onchange="updateSeqName(' + si + ',this.value)">';
+    h += '<span class="seq-stats">' + seqDone + ' / ' + seq.shots.length + ' done</span>';
+    if (state.sequences.length > 1) h += '<button class="seq-del" onclick="deleteSequence(' + si + ')" title="Delete sequence">&times;</button>';
+    h += '</div>';
 
-    h+='<div class="shots-table">';
+    h += '<div class="shots-table">';
 
-    // Column headers (desktop)
-    h+='<div class="shot-header">';
-    h+='<span></span><span>Shot #</span><span>INT/EXT</span><span>Location</span><span>Size</span><span>Angle</span><span>Audio</span><span>Subject</span><span>Description</span><span>Dialogue</span><span>Ref</span><span>VFX</span><span></span><span></span>';
-    h+='</div>';
+    /* Column headers â 14 spans matching 14 grid tracks */
+    h += '<div class="shot-header">';
+    h += '<span></span>';       /* drag handle */
+    h += '<span>Shot #</span>';
+    h += '<span>INT/EXT</span>';
+    h += '<span>Location</span>';
+    h += '<span>Size</span>';
+    h += '<span>Angle</span>';
+    h += '<span>Audio</span>';
+    h += '<span>Subject</span>';
+    h += '<span>Description</span>';
+    h += '<span>Dialogue</span>';
+    h += '<span>Ref</span>';
+    h += '<span>VFX</span>';
+    h += '<span></span>';       /* done */
+    h += '<span></span>';       /* actions */
+    h += '</div>';
 
-    shots.forEach((shot,di)=>{
-      const oi=shot._oi;
-      const cls=shot.done?' done':'';
-      h+='<div class="shot-row'+cls+'">';
+    /* Shot rows */
+    shots.forEach(shot => {
+      const oi = shot._oi;
+      h += '<div class="shot-row' + (shot.done ? ' done' : '') + '">';
 
-      // Drag handle
-      h+='<div class="drag-handle" draggable="true" data-seq="'+si+'" data-idx="'+oi+'" ontouchstart="touchDragStart(event,'+si+','+oi+')" ontouchmove="touchDragMove(event)" ontouchend="touchDragEnd(event,'+si+')" ondragstart="dragStart(event,'+si+','+oi+')" ondragover="dragOver(event)" ondrop="drop(event,'+si+','+oi+')" ondragend="dragEnd()">&#8942;&#8942;</div>';
+      /* 1. Drag handle */
+      h += '<div class="drag-handle" draggable="true" data-seq="' + si + '" data-idx="' + oi + '" '
+        + 'ontouchstart="touchDragStart(event,' + si + ',' + oi + ')" ontouchmove="touchDragMove(event)" ontouchend="touchDragEnd(event,' + si + ')" '
+        + 'ondragstart="dragStart(event,' + si + ',' + oi + ')" ondragover="dragOver(event)" ondrop="drop(event,' + si + ',' + oi + ')" ondragend="dragEnd()"'
+        + '>&#8942;&#8942;</div>';
 
-      // Shot #
-      h+='<div class="cell"><label class="mobile-label">Shot #</label><input type="text" value="'+esc(shot.shotNum)+'" onchange="updateField('+si+','+oi+',\'shotNum\',this.value)" style="font-weight:700"></div>';
+      /* 2. Shot # */
+      h += '<div class="cell"><label class="mobile-label">Shot #</label>'
+        + '<input type="text" value="' + esc(shot.shotNum) + '" style="font-weight:700" '
+        + 'onchange="updateField(' + si + ',' + oi + ',\'shotNum\',this.value)"></div>';
 
-      // INT/EXT
-      h+='<div class="cell"><label class="mobile-label">INT/EXT</label><select onchange="updateField('+si+','+oi+',\'intExt\',this.value)">'+makeOpts(INT_EXT,shot.intExt)+'</select></div>';
+      /* 3. INT/EXT */
+      h += '<div class="cell"><label class="mobile-label">INT/EXT</label>'
+        + '<select onchange="updateField(' + si + ',' + oi + ',\'intExt\',this.value)">'
+        + makeOpts(INT_EXT, shot.intExt) + '</select></div>';
 
-      // Location
-      h+='<div class="cell"><label class="mobile-label">Location</label><input type="text" value="'+esc(shot.location)+'" onchange="updateField('+si+','+oi+',\'location\',this.value);render()" placeholder="\u2014"></div>';
+      /* 4. Location */
+      h += '<div class="cell"><label class="mobile-label">Location</label>'
+        + '<input type="text" value="' + esc(shot.location) + '" placeholder="\u2014" '
+        + 'onchange="updateField(' + si + ',' + oi + ',\'location\',this.value);render()"></div>';
 
-      // Size
-      h+='<div class="cell"><label class="mobile-label">Size</label><select onchange="updateField('+si+','+oi+',\'shotSize\',this.value)">'+makeOpts(SHOT_SIZES,shot.shotSize)+'</select></div>';
+      /* 5. Size */
+      h += '<div class="cell"><label class="mobile-label">Size</label>'
+        + '<select onchange="updateField(' + si + ',' + oi + ',\'shotSize\',this.value)">'
+        + makeOpts(SHOT_SIZES, shot.shotSize) + '</select></div>';
 
-      // Angle
-      h+='<div class="cell"><label class="mobile-label">Angle</label><select onchange="updateField('+si+','+oi+',\'shotAngle\',this.value)">'+makeOpts(ANGLES,shot.shotAngle)+'</select></div>';
+      /* 6. Angle */
+      h += '<div class="cell"><label class="mobile-label">Angle</label>'
+        + '<select onchange="updateField(' + si + ',' + oi + ',\'shotAngle\',this.value)">'
+        + makeOpts(ANGLES, shot.shotAngle) + '</select></div>';
 
-      // Audio
-      h+='<div class="cell"><label class="mobile-label">Audio</label><select onchange="updateField('+si+','+oi+',\'audio\',this.value)">'+makeOpts(AUDIO,shot.audio)+'</select></div>';
+      /* 7. Audio */
+      h += '<div class="cell"><label class="mobile-label">Audio</label>'
+        + '<select onchange="updateField(' + si + ',' + oi + ',\'audio\',this.value)">'
+        + makeOpts(AUDIO, shot.audio) + '</select></div>';
 
-      // Subject
-      h+='<div class="cell"><label class="mobile-label">Subject</label><input type="text" value="'+esc(shot.subject)+'" onchange="updateField('+si+','+oi+',\'subject\',this.value)" placeholder="\u2014"></div>';
+      /* 8. Subject */
+      h += '<div class="cell"><label class="mobile-label">Subject</label>'
+        + '<input type="text" value="' + esc(shot.subject) + '" placeholder="\u2014" '
+        + 'onchange="updateField(' + si + ',' + oi + ',\'subject\',this.value)"></div>';
 
-      // Description
-      h+='<div class="cell cell-desc"><label class="mobile-label">Description</label><textarea onchange="updateField('+si+','+oi+',\'description\',this.value)" placeholder="Shot description\u2026">'+esc(shot.description)+'</textarea></div>';
+      /* 9. Description */
+      h += '<div class="cell cell-desc"><label class="mobile-label">Description</label>'
+        + '<textarea onchange="updateField(' + si + ',' + oi + ',\'description\',this.value)" '
+        + 'placeholder="Shot description\u2026">' + esc(shot.description) + '</textarea></div>';
 
-      // Dialogue
-      h+='<div class="cell cell-dial"><label class="mobile-label">Dialogue</label><textarea onchange="updateField('+si+','+oi+',\'dialogue\',this.value)" placeholder="Dialogue\u2026">'+esc(shot.dialogue)+'</textarea></div>';
+      /* 10. Dialogue */
+      h += '<div class="cell cell-dial"><label class="mobile-label">Dialogue</label>'
+        + '<textarea onchange="updateField(' + si + ',' + oi + ',\'dialogue\',this.value)" '
+        + 'placeholder="Dialogue\u2026">' + esc(shot.dialogue) + '</textarea></div>';
 
-      // Reference image
-      h+='<div class="cell cell-ref"><label class="mobile-label">Reference</label>';
-      h+='<div class="ref-cell'+(shot.refImg?' has-img':'')+'" onclick="handleRefClick('+si+','+oi+')" ondragover="refDragOver(event)" ondragleave="refDragLeave(event)" ondrop="refDrop(event,'+si+','+oi+')">';
-      if(shot.refImg){
-        h+='<img src="'+shot.refImg+'" alt="Ref">';
-        h+='<button class="ref-remove" onclick="removeRefImg(event,'+si+','+oi+')" title="Remove">&times;</button>';
+      /* 11. Reference image */
+      h += '<div class="cell cell-ref"><label class="mobile-label">Reference</label>';
+      h += '<div class="ref-cell' + (shot.refImg ? ' has-img' : '') + '" '
+        + 'onclick="handleRefClick(' + si + ',' + oi + ')" '
+        + 'ondragover="refDragOver(event)" ondragleave="refDragLeave(event)" '
+        + 'ondrop="refDrop(event,' + si + ',' + oi + ')">';
+      if (shot.refImg) {
+        h += '<img src="' + shot.refImg + '" alt="Ref">';
+        h += '<button class="ref-remove" onclick="removeRefImg(event,' + si + ',' + oi + ')" title="Remove">&times;</button>';
       } else {
-        h+='<div class="ref-placeholder"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>9:16</div>';
+        h += '<div class="ref-placeholder"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>9:16</div>';
       }
-      h+='</div></div>';
+      h += '</div></div>';
 
-      // VFX
-      h+='<div class="cell" style="justify-content:center"><input type="checkbox" class="vfx-check" '+(shot.vfx?'checked':'')+' onchange="updateField('+si+','+oi+',\'vfx\',this.checked)" title="VFX"></div>';
+      /* 12. VFX */
+      h += '<div class="cell" style="justify-content:center"><input type="checkbox" class="vfx-check" '
+        + (shot.vfx ? 'checked' : '') + ' onchange="updateField(' + si + ',' + oi + ',\'vfx\',this.checked)" title="VFX"></div>';
 
-      // Done
-      h+='<div class="cell" style="justify-content:center"><button class="done-btn'+(shot.done?' checked':'')+'" onclick="toggleDone('+si+','+oi+')" title="'+(shot.done?'Mark not done':'Mark done')+'">'+(shot.done?'&#10003;':'')+'</button></div>';
+      /* 13. Done */
+      h += '<div class="cell" style="justify-content:center"><button class="done-btn' + (shot.done ? ' checked' : '') + '" '
+        + 'onclick="toggleDone(' + si + ',' + oi + ')" title="' + (shot.done ? 'Mark not done' : 'Mark done') + '">'
+        + (shot.done ? '&#10003;' : '') + '</button></div>';
 
-      // Actions
-      h+='<div class="row-actions">';
-      h+='<button class="act-btn" onclick="dupShot('+si+','+oi+')" title="Duplicate">&#10697;</button>';
-      h+='<button class="act-btn del" onclick="if(confirm(\'Delete shot '+esc(shot.shotNum)+'?\'))deleteShot('+si+','+oi+')" title="Delete">&times;</button>';
-      h+='</div>';
+      /* 14. Actions */
+      h += '<div class="row-actions">';
+      h += '<button class="act-btn" onclick="dupShot(' + si + ',' + oi + ')" title="Duplicate">&#10697;</button>';
+      h += '<button class="act-btn del" onclick="if(confirm(\'Delete shot ' + esc(shot.shotNum) + '?\'))deleteShot(' + si + ',' + oi + ')" title="Delete">&times;</button>';
+      h += '</div>';
 
-      h+='</div>'; // shot-row
+      h += '</div>'; /* shot-row */
     });
 
-    h+='</div>'; // shots-table
-    h+='<button class="add-shot" onclick="addShot('+si+')">+ Add Shot</button>';
-    h+='</div>'; // seq-wrap
+    h += '</div>'; /* shots-table */
+    h += '<button class="add-shot" onclick="addShot(' + si + ')">+ Add Shot</button>';
+    h += '</div>'; /* seq-wrap */
   });
 
-  h+='<button class="btn add-seq" onclick="addSequence()">+ Add Sequence</button>';
-  h+='<div class="tips"><strong>Tips:</strong> Use ▲ ▼ to reorder shots · Click ✓ to mark done (row turns green) · "By Location" groups shots for efficient shooting · Export JSON to save, Import to reload · Export PDF for print · On iPhone: Share → Add to Home Screen</div>';
-  h+='</div>'; // container
+  h += '<button class="btn add-seq" onclick="addSequence()">+ Add Sequence</button>';
+  h += '<div class="tips"><strong>Tips:</strong> Drag &#8942;&#8942; to reorder \u00b7 Click \u25cb to mark done \u00b7 "By Location" groups shots for efficient shooting \u00b7 Export JSON to save, Import to reload \u00b7 Export PDF for print</div>';
+  h += '</div>'; /* container */
 
-  document.getElementById('app').innerHTML=h;
+  document.getElementById('app').innerHTML = h;
 }
 
-// Drag and drop (desktop)
+/* ---------- Drag & Drop (desktop) ---------- */
 let dragSrc = null;
 function dragStart(e, si, oi) {
-  dragSrc = {si, oi};
+  dragSrc = { si, oi };
   e.dataTransfer.effectAllowed = 'move';
   const row = e.target.closest('.shot-row');
   if (row) row.classList.add('dragging');
@@ -661,16 +723,16 @@ function dragEnd() {
   document.querySelectorAll('.dragging,.drag-over').forEach(el => { el.classList.remove('dragging'); el.classList.remove('drag-over'); });
 }
 
-// Touch drag (mobile)
+/* ---------- Touch Drag (mobile) ---------- */
 let touchDragData = null;
 let touchClone = null;
 function touchDragStart(e, si, oi) {
-  touchDragData = {si, oi, startY: e.touches[0].clientY};
+  touchDragData = { si, oi, startY: e.touches[0].clientY };
   const row = e.target.closest('.shot-row');
   if (row) {
     row.classList.add('dragging');
     touchClone = row.cloneNode(true);
-    touchClone.style.cssText = 'position:fixed;z-index:9999;pointer-events:none;opacity:0.8;width:'+row.offsetWidth+'px;left:'+row.getBoundingClientRect().left+'px;top:'+e.touches[0].clientY+'px;transform:translateY(-50%);box-shadow:0 4px 20px rgba(0,0,0,0.15);';
+    touchClone.style.cssText = 'position:fixed;z-index:9999;pointer-events:none;opacity:0.8;width:' + row.offsetWidth + 'px;left:' + row.getBoundingClientRect().left + 'px;top:' + e.touches[0].clientY + 'px;transform:translateY(-50%);box-shadow:0 4px 20px rgba(0,0,0,0.15);';
     document.body.appendChild(touchClone);
   }
 }
@@ -703,7 +765,9 @@ function touchDragEnd(e, si) {
   touchDragData = null;
 }
 
-load(); render();
+/* ---------- Init ---------- */
+load();
+render();
 </script>
 </body>
 </html>
