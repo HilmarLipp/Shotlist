@@ -36,8 +36,8 @@
   --radius-sm: 8px;
 
   /* Grid â SINGLE definition used by both header and rows */
-  --grid-cols: 36px 60px 68px minmax(80px, 1.2fr) 72px 100px 64px minmax(80px, 1.2fr) 1.5fr 1.5fr 110px 40px 48px 56px;
-  --grid-cols-pdf: 0px 44px 52px minmax(56px, 1.2fr) 56px 88px 52px minmax(64px, 1.2fr) 1.5fr 1.5fr 72px 0px 0px 0px;
+  --grid-cols: 36px 60px 68px minmax(80px, 1.2fr) 80px 128px 76px minmax(80px, 1.2fr) 1.5fr 1.5fr 110px 40px 48px 56px;
+  --grid-cols-pdf: 0px 44px 52px minmax(56px, 1.2fr) 60px 96px 56px minmax(64px, 1.2fr) 1.5fr 1.5fr 72px 0px 0px 0px;
 }
 
 /* Reset */
@@ -169,7 +169,7 @@ input, select, textarea, button { font-family: inherit; }
 .shot-header span {
   font-size: 11px; font-weight: 700; color: var(--text3);
   text-transform: uppercase; letter-spacing: 0.5px;
-  padding: 10px 8px; white-space: nowrap;
+  padding: 10px 16px; white-space: nowrap;
   display: flex; align-items: center;
 }
 
@@ -188,9 +188,9 @@ input, select, textarea, button { font-family: inherit; }
 .shot-row.done { background: var(--green-bg); border-left: 3px solid var(--green); }
 .shot-row.done:hover { background: rgba(52,199,89,0.12); }
 
-/* Cells */
+/* Cells â no horizontal padding; inputs provide their own */
 .cell {
-  padding: 6px 8px; font-size: 15px; min-height: 44px;
+  padding: 6px 0; font-size: 15px; min-height: 44px;
   display: flex; align-items: center; min-width: 0; overflow: hidden;
 }
 
@@ -200,7 +200,7 @@ input, select, textarea, button { font-family: inherit; }
 .shot-row textarea {
   width: 100%; background: transparent;
   border: 1px solid transparent; color: var(--text);
-  padding: 6px 8px; border-radius: 6px; font-size: 15px;
+  padding: 6px 8px 6px 16px; border-radius: 6px; font-size: 15px;
   transition: border-color 0.15s, box-shadow 0.15s;
   min-width: 0;
 }
@@ -392,8 +392,6 @@ const SAMPLE = {
       { id:"s4", shotNum:"04", intExt:"INT", location:"Loc 2", shotSize:"ECU", shotAngle:"Eye Level", audio:"Sync", subject:"Thomas", description:"", dialogue:"", done:false, vfx:false, refImg:"" },
       { id:"s5", shotNum:"05", intExt:"INT", location:"Loc 2", shotSize:"MS", shotAngle:"Eye Level", audio:"Sync", subject:"Thomas", description:"", dialogue:"", done:false, vfx:false, refImg:"" },
       { id:"s6", shotNum:"06", intExt:"INT", location:"Loc 2", shotSize:"MS", shotAngle:"Eye Level", audio:"Sync", subject:"Thomas", description:"", dialogue:"", done:false, vfx:false, refImg:"" },
-      { id:"s7", shotNum:"07", intExt:"INT", location:"Loc 3", shotSize:"WS", shotAngle:"Eye Level", audio:"Sync", subject:"Thomas", description:"", dialogue:"", done:false, vfx:false, refImg:"" },
-      { id:"s8", shotNum:"08", intExt:"INT", location:"Loc 3", shotSize:"CU", shotAngle:"Eye Level", audio:"Sync", subject:"Thomas", description:"", dialogue:"", done:false, vfx:false, refImg:"" },
       { id:"s9", shotNum:"09", intExt:"INT", location:"", shotSize:"", shotAngle:"", audio:"MOS", subject:"", description:"", dialogue:"", done:false, vfx:false, refImg:"" },
       { id:"s10", shotNum:"10", intExt:"INT", location:"Loc 2", shotSize:"WS", shotAngle:"Eye Level", audio:"Sync", subject:"Thomas", description:"", dialogue:"", done:false, vfx:false, refImg:"" },
       { id:"s11", shotNum:"11", intExt:"INT", location:"Loc 2", shotSize:"MS", shotAngle:"High Angle", audio:"Sync", subject:"Thomas", description:"", dialogue:"", done:false, vfx:false, refImg:"" },
