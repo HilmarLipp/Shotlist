@@ -12,7 +12,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <style>
 /* ==========================================================================
-   SHOTLIST â Apple HIG-informed design
+   SHOTLIST — Apple HIG-informed design
    Single source of truth for column layout via CSS custom properties.
    ========================================================================== */
 
@@ -35,7 +35,7 @@
   --radius: 12px;
   --radius-sm: 8px;
 
-  /* Grid â SINGLE definition used by both header and rows */
+  /* Grid — SINGLE definition used by both header and rows */
   --grid-cols: 36px 60px 68px minmax(80px, 1.2fr) 80px 128px 76px minmax(80px, 1.2fr) 1.5fr 1.5fr 146px 40px 48px 56px;
   --grid-cols-pdf: 0px 44px 52px minmax(56px, 1.2fr) 60px 96px 56px minmax(64px, 1.2fr) 1.5fr 1.5fr 72px 0px 0px 0px;
 }
@@ -159,7 +159,7 @@ input, select, textarea, button { font-family: inherit; }
   border-radius: 0 0 var(--radius) var(--radius); overflow: hidden;
 }
 
-/* Column header row â uses the SAME custom property as data rows */
+/* Column header row — uses the SAME custom property as data rows */
 .shot-header {
   display: grid;
   grid-template-columns: var(--grid-cols);
@@ -173,7 +173,7 @@ input, select, textarea, button { font-family: inherit; }
   display: flex; align-items: center;
 }
 
-/* Data row â uses the SAME custom property as header */
+/* Data row — uses the SAME custom property as header */
 .shot-row {
   display: grid;
   grid-template-columns: var(--grid-cols);
@@ -188,7 +188,7 @@ input, select, textarea, button { font-family: inherit; }
 .shot-row.done { background: var(--green-bg); border-left: 3px solid var(--green); }
 .shot-row.done:hover { background: rgba(52,199,89,0.12); }
 
-/* Cells â no horizontal padding; inputs provide their own */
+/* Cells — no horizontal padding; inputs provide their own */
 .cell {
   padding: 6px 0; font-size: 15px; min-height: 44px;
   display: flex; align-items: center; min-width: 0; overflow: hidden;
@@ -368,7 +368,7 @@ input, select, textarea, button { font-family: inherit; }
 <div id="app"></div>
 <script>
 /* ==========================================================================
-   SHOTLIST â Application Logic
+   SHOTLIST — Application Logic
    ========================================================================== */
 
 const SHOT_SIZES = ["", "EWS", "WS", "FS", "MFS", "MS", "MCU", "CU", "ECU", "Detail", "POV", "OTS", "Insert"];
@@ -497,9 +497,10 @@ function removeRefImg(e, si, oi) {
   e.stopPropagation();
   state.sequences[si].shots[oi].refImg = ''; save(); render();
 }
-function refDragOver(e) { e.preventDefault(); e.stopPropagation(); e.currentTarget.classList.add('drag-hover'); }
+function refDragOver(e) { if (dragSrc) { return; } e.preventDefault(); e.stopPropagation(); e.currentTarget.classList.add('drag-hover'); }
 function refDragLeave(e) { e.currentTarget.classList.remove('drag-hover'); }
 function refDrop(e, si, oi) {
+  if (dragSrc) { return; }
   e.preventDefault(); e.stopPropagation(); e.currentTarget.classList.remove('drag-hover');
   const f = e.dataTransfer.files[0];
   if (f && f.type.startsWith('image/')) {
@@ -575,7 +576,7 @@ function render() {
 
     h += '<div class="shots-table">';
 
-    /* Column headers â 14 spans matching 14 grid tracks */
+    /* Column headers — 14 spans matching 14 grid tracks */
     h += '<div class="shot-header">';
     h += '<span></span>';       /* drag handle */
     h += '<span>Shot #</span>';
@@ -596,12 +597,12 @@ function render() {
     /* Shot rows */
     shots.forEach(shot => {
       const oi = shot._oi;
-      h += '<div class="shot-row' + (shot.done ? ' done' : '') + '">';
+      h += '<div class="shot-row' + (shot.done ? ' done' : '') + '" ondragover="dragOver(event)" ondrop="drop(event,' + si + ',' + oi + ')">';
 
       /* 1. Drag handle */
       h += '<div class="drag-handle" draggable="true" data-seq="' + si + '" data-idx="' + oi + '" '
         + 'ontouchstart="touchDragStart(event,' + si + ',' + oi + ')" ontouchmove="touchDragMove(event)" ontouchend="touchDragEnd(event,' + si + ')" '
-        + 'ondragstart="dragStart(event,' + si + ',' + oi + ')" ondragover="dragOver(event)" ondrop="drop(event,' + si + ',' + oi + ')" ondragend="dragEnd()"'
+        + 'ondragstart="dragStart(event,' + si + ',' + oi + ')" ondragend="dragEnd()"'
         + '>&#8942;&#8942;</div>';
 
       /* 2. Shot # */
