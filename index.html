@@ -4,769 +4,472 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Shotlist">
 <title>Shotlist</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Asap:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <style>
-/* ==========================================================================
-   SHOTLIST — Apple HIG-informed design
-   Single source of truth for column layout via CSS custom properties.
-   ========================================================================== */
-
+/* ===== DESIGN TOKENS ===== */
 :root {
-  /* Palette */
-  --bg: #ffffff;
-  --surface: #f5f5f7;
-  --surface2: #fafafa;
-  --border: #d2d2d7;
-  --border-light: #e8e8ed;
-  --text: #1d1d1f;
-  --text2: #6e6e73;
-  --text3: #86868b;
-  --accent: #0071e3;
-  --green: #34c759;
-  --green-bg: rgba(52,199,89,0.08);
-  --orange: #ff9f0a;
-  --purple: #af52de;
-  --red: #ff3b30;
-  --radius: 12px;
-  --radius-sm: 8px;
+  --bg:#fff; --surface:#f5f5f7; --surface2:#fafafa;
+  --border:#d2d2d7; --border-lt:#e8e8ed;
+  --text:#1d1d1f; --text2:#6e6e73; --text3:#86868b;
+  --accent:#0071e3; --green:#34c759; --green-bg:rgba(52,199,89,.08);
+  --red:#ff3b30; --purple:#af52de;
+  --radius:12px; --radius-sm:8px;
+  /* 14 columns: drag | shot# | int/ext | location | size | angle | audio | subject | desc | dialogue | ref | vfx | done | actions */
+  --cols: 36px 56px 64px minmax(72px,1.2fr) 72px 110px 68px minmax(72px,1.2fr) 1.5fr 1.5fr 130px 38px 44px 52px;
+  --cols-pdf: 0px 40px 46px minmax(52px,1fr) 52px 80px 48px minmax(52px,1fr) 1.4fr 1.4fr 80px 0px 0px 0px;
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html,body{background:var(--bg);color:var(--text);font-family:'Asap',-apple-system,sans-serif;font-size:16px;line-height:1.45;-webkit-font-smoothing:antialiased}
+input,select,textarea,button{font-family:inherit}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
 
-  /* Grid — SINGLE definition used by both header and rows */
-  --grid-cols: 36px 60px 68px minmax(80px, 1.2fr) 80px 128px 76px minmax(80px, 1.2fr) 1.5fr 1.5fr 146px 40px 48px 56px;
-  --grid-cols-pdf: 0px 44px 52px minmax(56px, 1.2fr) 60px 96px 56px minmax(64px, 1.2fr) 1.5fr 1.5fr 72px 0px 0px 0px;
-}
+/* ===== LAYOUT ===== */
+.container{max-width:1480px;margin:0 auto;padding:0 20px}
 
-/* Reset */
-*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+/* ===== HEADER ===== */
+.header{position:sticky;top:0;z-index:100;background:rgba(255,255,255,.9);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid var(--border-lt);padding:14px 20px}
+.header-inner{max-width:1480px;margin:0 auto}
+.header-top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.project-title{font-size:26px;font-weight:700;letter-spacing:-.5px;background:none;border:none;color:var(--text);padding:0;outline:none;width:300px}
+.project-title::placeholder{color:var(--border)}
+.meta-row{display:flex;gap:16px;flex-wrap:wrap;align-items:center;margin-top:8px}
+.meta-label{font-size:12px;font-weight:600;color:var(--text3);display:flex;align-items:center;gap:5px}
+.meta-input{background:var(--surface);border:1px solid var(--border-lt);color:var(--text);padding:5px 9px;border-radius:var(--radius-sm);font-size:13px;font-weight:500;width:110px;transition:border-color .2s}
+.meta-input:focus{border-color:var(--accent);outline:none;box-shadow:0 0 0 3px rgba(0,113,227,.1)}
+.meta-input[type="date"]{width:140px}
+.progress-wrap{display:flex;align-items:center;gap:10px}
+.progress-text{font-size:14px;color:var(--text2);white-space:nowrap;font-weight:500}
+.progress-text strong{color:var(--green);font-size:20px;font-weight:700}
 
-html, body {
-  background: var(--bg);
-  color: var(--text);
-  font-family: 'Asap', -apple-system, 'SF Pro Text', 'Helvetica Neue', sans-serif;
-  font-size: 17px;
-  line-height: 1.47;
-  -webkit-font-smoothing: antialiased;
-}
+/* ===== TOOLBAR ===== */
+.toolbar{display:flex;gap:6px;padding:10px 20px;align-items:center;flex-wrap:wrap;max-width:1480px;margin:0 auto;border-bottom:1px solid var(--border-lt)}
+.btn{padding:7px 16px;font-size:13px;font-weight:600;background:var(--surface);color:var(--text2);border:1px solid var(--border-lt);border-radius:var(--radius-sm);cursor:pointer;white-space:nowrap;transition:all .15s;min-height:34px}
+.btn:hover{background:var(--border-lt);color:var(--text)}
+.btn:active{transform:scale(.98)}
+.btn-group{display:flex;background:var(--surface);border-radius:var(--radius-sm);border:1px solid var(--border-lt);overflow:hidden}
+.btn-tab{padding:7px 14px;font-size:13px;font-weight:600;background:transparent;color:var(--text3);border:none;cursor:pointer;white-space:nowrap;transition:all .15s}
+.btn-tab:hover{color:var(--text2)}
+.btn-tab.active{background:var(--bg);color:var(--text);box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.filter-select{background:var(--surface);border:1px solid var(--border-lt);color:var(--text);padding:7px 10px;border-radius:var(--radius-sm);font-size:13px;font-weight:500;cursor:pointer;min-height:34px}
+.spacer{flex:1}
 
-input, select, textarea, button { font-family: inherit; }
+/* ===== SEQUENCE ===== */
+.seq-wrap{margin:14px 0}
+.container .seq-wrap:first-of-type{margin-top:16px}
+.seq-header{display:flex;align-items:center;gap:8px;padding:10px 14px;background:var(--surface);border:1px solid var(--border-lt);border-radius:var(--radius) var(--radius) 0 0}
+.seq-badge{background:var(--accent);color:#fff;font-size:10px;font-weight:700;letter-spacing:.5px;padding:2px 9px;border-radius:20px;flex-shrink:0}
+.seq-name{font-size:16px;font-weight:700;background:none;border:none;color:var(--text);padding:2px 6px;outline:none;flex:1;min-width:0}
+.seq-stats{font-size:12px;color:var(--text3);font-weight:500;flex-shrink:0}
+.seq-del{background:none;border:none;color:var(--border);cursor:pointer;font-size:15px;padding:3px 6px;border-radius:4px;transition:color .15s}
+.seq-del:hover{color:var(--red)}
 
-/* Scrollbar */
-::-webkit-scrollbar { width: 6px; height: 6px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+/* ===== SHOT TABLE ===== */
+.shots-table{border:1px solid var(--border-lt);border-top:none;border-radius:0 0 var(--radius) var(--radius);overflow:hidden}
+.shot-header{display:grid;grid-template-columns:var(--cols);background:var(--surface);border-bottom:1px solid var(--border-lt)}
+.shot-header span{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;padding:8px 6px;white-space:nowrap;display:flex;align-items:center}
+.shot-row{display:grid;grid-template-columns:var(--cols);align-items:center;border-bottom:1px solid var(--border-lt);transition:background .15s;min-height:48px}
+.shot-row:last-child{border-bottom:none}
+.shot-row:nth-child(even){background:var(--surface2)}
+.shot-row:hover{background:rgba(0,113,227,.03)}
+.shot-row.done{background:var(--green-bg);border-left:3px solid var(--green)}
 
-/* =========== Layout =========== */
-.container { max-width: 1480px; margin: 0 auto; padding: 0 24px; }
+/* ===== CELLS ===== */
+.cell{padding:4px 0;font-size:14px;min-height:40px;display:flex;align-items:center;min-width:0;overflow:hidden}
+.shot-row input[type="text"],.shot-row select,.shot-row textarea{width:100%;background:transparent;border:1px solid transparent;color:var(--text);padding:5px 6px;border-radius:5px;font-size:14px;transition:border-color .15s,box-shadow .15s;min-width:0}
+.shot-row input[type="text"]:focus,.shot-row select:focus,.shot-row textarea:focus{border-color:var(--accent);outline:none;box-shadow:0 0 0 3px rgba(0,113,227,.1);background:var(--bg)}
+.shot-row select{color:var(--text2);cursor:pointer;-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%2386868b'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 6px center;padding-right:20px}
+.shot-row textarea{resize:vertical;min-height:36px;line-height:1.35;font-size:13px}
 
-/* =========== Sticky header =========== */
-.header {
-  position: sticky; top: 0; z-index: 100;
-  background: rgba(255,255,255,0.88);
-  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-  border-bottom: 1px solid var(--border-light);
-  padding: 16px 24px;
-}
-.header-inner { max-width: 1480px; margin: 0 auto; }
-.header-top { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; }
-.project-title {
-  font-size: 28px; font-weight: 700; letter-spacing: -0.5px;
-  background: none; border: none; color: var(--text);
-  padding: 0; outline: none; width: 320px;
-}
-.project-title::placeholder { color: var(--border); }
-.meta-row { display: flex; gap: 20px; flex-wrap: wrap; align-items: center; margin-top: 10px; }
-.meta-label { font-size: 13px; font-weight: 600; color: var(--text3); display: flex; align-items: center; gap: 6px; }
-.meta-input {
-  background: var(--surface); border: 1px solid var(--border-light);
-  color: var(--text); padding: 6px 10px; border-radius: var(--radius-sm);
-  font-size: 14px; font-weight: 500; width: 120px; transition: border-color 0.2s;
-}
-.meta-input:focus { border-color: var(--accent); outline: none; box-shadow: 0 0 0 3px rgba(0,113,227,0.1); }
-.meta-input[type="date"] { width: 150px; }
+/* ===== REF IMAGE ===== */
+.ref-cell{width:100%;aspect-ratio:9/16;border:2px dashed var(--border-lt);border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;cursor:pointer;transition:border-color .2s,background .2s;background:var(--surface2)}
+.ref-cell:hover{border-color:var(--accent);background:rgba(0,113,227,.02)}
+.ref-cell.has-img{border-style:solid;border-color:var(--border-lt)}
+.ref-cell img{width:100%;height:100%;object-fit:cover;display:block}
+.ref-cell .ref-placeholder{font-size:9px;color:var(--text3);text-align:center;line-height:1.3;padding:4px;pointer-events:none}
+.ref-cell .ref-placeholder svg{display:block;margin:0 auto 2px;opacity:.4}
+.ref-cell .ref-remove{position:absolute;top:2px;right:2px;width:18px;height:18px;background:rgba(0,0,0,.6);color:#fff;border:none;border-radius:50%;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .15s}
+.ref-cell:hover .ref-remove{opacity:1}
+.ref-cell.drag-hover{border-color:var(--accent);background:rgba(0,113,227,.06)}
 
-/* Progress */
-.progress-wrap { display: flex; align-items: center; gap: 12px; }
-.progress-text { font-size: 15px; color: var(--text2); white-space: nowrap; font-weight: 500; }
-.progress-text strong { color: var(--green); font-size: 22px; font-weight: 700; }
-.progress-bar { width: 140px; height: 6px; background: var(--surface); border-radius: 3px; overflow: hidden; }
-.progress-fill { height: 100%; border-radius: 3px; transition: width 0.4s ease; }
+/* ===== DRAG ===== */
+.drag-handle{display:flex;align-items:center;justify-content:center;cursor:grab;color:var(--border);font-size:15px;user-select:none;-webkit-user-select:none;touch-action:none;min-height:40px}
+.drag-handle:hover{color:var(--text3)}
+.drag-handle:active{cursor:grabbing}
+.shot-row.dragging{opacity:.4;background:var(--surface)}
+.shot-row.drag-over{box-shadow:inset 0 -3px 0 var(--accent)}
 
-/* =========== Toolbar =========== */
-.toolbar {
-  display: flex; gap: 8px; padding: 12px 24px; align-items: center;
-  flex-wrap: wrap; max-width: 1480px; margin: 0 auto;
-  border-bottom: 1px solid var(--border-light);
-}
-.btn {
-  padding: 8px 18px; font-size: 14px; font-weight: 600;
-  background: var(--surface); color: var(--text2);
-  border: 1px solid var(--border-light); border-radius: var(--radius-sm);
-  cursor: pointer; white-space: nowrap; transition: all 0.15s; min-height: 36px;
-}
-.btn:hover { background: var(--border-light); color: var(--text); }
-.btn:active { transform: scale(0.98); }
-.btn-group {
-  display: flex; background: var(--surface); border-radius: var(--radius-sm);
-  border: 1px solid var(--border-light); overflow: hidden;
-}
-.btn-tab {
-  padding: 8px 16px; font-size: 14px; font-weight: 600;
-  background: transparent; color: var(--text3);
-  border: none; cursor: pointer; white-space: nowrap; transition: all 0.15s;
-}
-.btn-tab:hover { color: var(--text2); }
-.btn-tab.active { background: var(--bg); color: var(--text); box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
-.filter-select {
-  background: var(--surface); border: 1px solid var(--border-light);
-  color: var(--text); padding: 8px 12px; border-radius: var(--radius-sm);
-  font-size: 14px; font-weight: 500; cursor: pointer; min-height: 36px;
-}
-.filter-select:focus { border-color: var(--accent); outline: none; }
-.spacer { flex: 1; }
+/* ===== VFX / DONE / ACTIONS ===== */
+.vfx-check{accent-color:var(--purple);width:16px;height:16px;cursor:pointer}
+.done-btn{width:32px;height:32px;border-radius:50%;border:2px solid var(--border);background:var(--bg);color:transparent;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0}
+.done-btn:hover{border-color:var(--green)}
+.done-btn.checked{border-color:var(--green);background:var(--green);color:#fff;box-shadow:0 2px 8px rgba(52,199,89,.3)}
+.row-actions{display:flex;gap:2px;padding:2px}
+.act-btn{width:22px;height:22px;display:flex;align-items:center;justify-content:center;background:none;border:1px solid transparent;color:var(--border);cursor:pointer;border-radius:4px;font-size:13px;transition:all .15s}
+.act-btn:hover{color:var(--text3);background:var(--surface)}
+.act-btn.del:hover{color:var(--red)}
 
-/* =========== Sequence =========== */
-.seq-wrap { margin: 16px 0; }
-.container .seq-wrap:first-of-type { margin-top: 20px; }
-.seq-header {
-  display: flex; align-items: center; gap: 10px;
-  padding: 12px 16px;
-  background: var(--surface); border: 1px solid var(--border-light);
-  border-radius: var(--radius) var(--radius) 0 0;
-}
-.seq-badge {
-  background: var(--accent); color: #fff;
-  font-size: 11px; font-weight: 700; letter-spacing: 0.5px;
-  padding: 3px 10px; border-radius: 20px; flex-shrink: 0;
-}
-.seq-name {
-  font-size: 17px; font-weight: 700; background: none; border: none;
-  color: var(--text); padding: 2px 8px; outline: none; flex: 1; min-width: 0;
-}
-.seq-stats { font-size: 13px; color: var(--text3); font-weight: 500; flex-shrink: 0; }
-.seq-del {
-  background: none; border: none; color: var(--border); cursor: pointer;
-  font-size: 16px; padding: 4px 8px; border-radius: 4px; transition: color 0.15s;
-}
-.seq-del:hover { color: var(--red); }
+/* ===== ADD / TIPS ===== */
+.add-shot{width:100%;padding:8px;font-size:13px;font-weight:600;background:var(--bg);color:var(--text3);border:1px dashed var(--border-lt);border-top:none;border-radius:0 0 var(--radius) var(--radius);cursor:pointer;transition:all .15s}
+.add-shot:hover{color:var(--accent);background:rgba(0,113,227,.02)}
+.add-seq{display:block;margin:6px 0 28px}
+.tips{margin:20px 0 36px;padding:12px 16px;background:var(--surface);border-radius:var(--radius);border:1px solid var(--border-lt);font-size:12px;color:var(--text3);line-height:1.6}
+.tips strong{color:var(--text2)}
 
-/* =========== Shot table =========== */
-.shots-table {
-  border: 1px solid var(--border-light); border-top: none;
-  border-radius: 0 0 var(--radius) var(--radius); overflow: hidden;
+/* ===== PDF EXPORT MODE ===== */
+.pdf-mode .header,.pdf-mode .toolbar,.pdf-mode .row-actions,
+.pdf-mode .drag-handle,.pdf-mode .add-shot,.pdf-mode .add-seq,
+.pdf-mode .tips,.pdf-mode .done-btn,.pdf-mode .vfx-check{display:none!important}
+.pdf-mode{padding:8px!important}
+.pdf-mode .container{padding:0}
+.pdf-mode .shot-header{grid-template-columns:var(--cols-pdf)!important}
+.pdf-mode .shot-row{
+  grid-template-columns:var(--cols-pdf)!important;
+  min-height:auto;border-left:none!important;
+  align-items:start!important;
 }
+.pdf-mode .ref-cell{aspect-ratio:9/16;max-height:140px;width:auto;border:1px solid var(--border-lt);cursor:default;background:var(--surface2)}
+.pdf-mode .ref-cell img{object-fit:cover!important}
+.pdf-mode .ref-cell .ref-placeholder,.pdf-mode .ref-cell .ref-remove{display:none}
+.pdf-mode .shot-row input,.pdf-mode .shot-row select,.pdf-mode .shot-row textarea{
+  font-size:9px!important;padding:3px 2px!important;line-height:1.3!important;
+  border:none!important;background:transparent!important;
+  box-shadow:none!important;-webkit-appearance:none;appearance:none;
+  pointer-events:none;background-image:none!important;
+  white-space:normal!important;overflow:visible!important;
+  text-overflow:clip!important;word-break:break-word!important;
+  height:auto!important;
+}
+.pdf-mode .shot-row select{padding-right:2px!important}
+.pdf-mode .shot-row textarea{resize:none!important;overflow:visible!important;white-space:pre-wrap!important}
+.pdf-mode .shot-header span{font-size:8px!important;padding:5px 3px!important}
+.pdf-mode .cell{padding:3px 2px!important;min-height:auto!important;align-items:flex-start!important;overflow:visible!important}
+.pdf-mode .shot-row.done{background:var(--green-bg)!important;border-left:3px solid var(--green)!important}
+.pdf-mode .seq-header{padding:6px 10px}
+.pdf-mode .seq-wrap{margin:6px 0}
+.pdf-mode .seq-del{display:none!important}
+.pdf-mode .pdf-header{display:flex!important;justify-content:space-between;align-items:flex-start;padding:10px 0;margin-bottom:6px;border-bottom:2px solid var(--text)}
+.pdf-header{display:none}
+.pdf-mode .pdf-title{font-size:20px;font-weight:700}
+.pdf-mode .pdf-meta{font-size:11px;color:var(--text2);text-align:right}
 
-/* Column header row — uses the SAME custom property as data rows */
-.shot-header {
-  display: grid;
-  grid-template-columns: var(--grid-cols);
-  background: var(--surface);
-  border-bottom: 1px solid var(--border-light);
+/* ===== RESPONSIVE ===== */
+@media(max-width:1024px){
+  .shot-header{display:none}
+  .shot-row{display:flex;flex-wrap:wrap;gap:6px 10px;padding:10px 12px;grid-template-columns:unset}
+  .shot-row .cell{min-height:auto;padding:2px 0}
+  .shot-row .cell-desc,.shot-row .cell-dial{width:100%}
+  .shot-row .cell-ref{width:100%}
+  .shot-row .cell-ref .ref-cell{max-height:160px;aspect-ratio:9/16;width:auto;height:auto}
+  label.mobile-label{display:block;font-size:9px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.3px;margin-bottom:1px}
 }
-.shot-header span {
-  font-size: 11px; font-weight: 700; color: var(--text3);
-  text-transform: uppercase; letter-spacing: 0.5px;
-  padding: 10px 16px; white-space: nowrap;
-  display: flex; align-items: center;
-}
-
-/* Data row — uses the SAME custom property as header */
-.shot-row {
-  display: grid;
-  grid-template-columns: var(--grid-cols);
-  align-items: center;
-  border-bottom: 1px solid var(--border-light);
-  transition: background 0.15s;
-  min-height: 52px;
-}
-.shot-row:last-child { border-bottom: none; }
-.shot-row:nth-child(even) { background: var(--surface2); }
-.shot-row:hover { background: rgba(0,113,227,0.03); }
-.shot-row.done { background: var(--green-bg); border-left: 3px solid var(--green); }
-.shot-row.done:hover { background: rgba(52,199,89,0.12); }
-
-/* Cells — no horizontal padding; inputs provide their own */
-.cell {
-  padding: 6px 0; font-size: 15px; min-height: 44px;
-  display: flex; align-items: center; min-width: 0; overflow: hidden;
-}
-
-/* Inputs inside cells */
-.shot-row input[type="text"],
-.shot-row select,
-.shot-row textarea {
-  width: 100%; background: transparent;
-  border: 1px solid transparent; color: var(--text);
-  padding: 6px 8px 6px 16px; border-radius: 6px; font-size: 15px;
-  transition: border-color 0.15s, box-shadow 0.15s;
-  min-width: 0;
-}
-.shot-row input[type="text"]:focus,
-.shot-row select:focus,
-.shot-row textarea:focus {
-  border-color: var(--accent); outline: none;
-  box-shadow: 0 0 0 3px rgba(0,113,227,0.1);
-  background: var(--bg);
-}
-.shot-row select {
-  color: var(--text2); cursor: pointer;
-  -webkit-appearance: none; appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%2386868b'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 8px center;
-  padding-right: 22px;
-}
-.shot-row textarea {
-  resize: vertical; min-height: 40px; line-height: 1.4; font-size: 14px;
-}
-
-/* =========== Reference image cell =========== */
-.ref-cell {
-  width: 100%; aspect-ratio: 9/16;
-  border: 2px dashed var(--border-light); border-radius: var(--radius-sm);
-  display: flex; align-items: center; justify-content: center;
-  overflow: hidden; position: relative; cursor: pointer;
-  transition: border-color 0.2s, background 0.2s;
-  background: var(--surface2);
-}
-.ref-cell:hover { border-color: var(--accent); background: rgba(0,113,227,0.02); }
-.ref-cell.has-img { border-style: solid; border-color: var(--border-light); }
-.ref-cell img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.ref-cell .ref-placeholder {
-  font-size: 10px; color: var(--text3); text-align: center;
-  line-height: 1.3; padding: 4px; pointer-events: none;
-}
-.ref-cell .ref-placeholder svg { display: block; margin: 0 auto 3px; opacity: 0.4; }
-.ref-cell .ref-remove {
-  position: absolute; top: 3px; right: 3px; width: 20px; height: 20px;
-  background: rgba(0,0,0,0.6); color: #fff; border: none; border-radius: 50%;
-  font-size: 12px; cursor: pointer; display: flex; align-items: center;
-  justify-content: center; opacity: 0; transition: opacity 0.15s;
-}
-.ref-cell:hover .ref-remove { opacity: 1; }
-.ref-cell.drag-hover { border-color: var(--accent); background: rgba(0,113,227,0.06); }
-
-/* =========== Drag handle =========== */
-.drag-handle {
-  display: flex; align-items: center; justify-content: center;
-  cursor: grab; color: var(--border); font-size: 16px;
-  user-select: none; -webkit-user-select: none;
-  touch-action: none; min-height: 44px;
-}
-.drag-handle:hover { color: var(--text3); }
-.drag-handle:active { cursor: grabbing; }
-.shot-row.dragging { opacity: 0.4; background: var(--surface); }
-.shot-row.drag-over { box-shadow: inset 0 -3px 0 var(--accent); }
-
-/* =========== VFX / Done / Actions =========== */
-.vfx-check { accent-color: var(--purple); width: 18px; height: 18px; cursor: pointer; }
-.done-btn {
-  width: 36px; height: 36px; border-radius: 50%;
-  border: 2px solid var(--border); background: var(--bg);
-  color: transparent; font-size: 16px; font-weight: 700;
-  cursor: pointer; display: flex; align-items: center; justify-content: center;
-  transition: all 0.2s; flex-shrink: 0;
-}
-.done-btn:hover { border-color: var(--green); }
-.done-btn.checked {
-  border-color: var(--green); background: var(--green); color: #fff;
-  box-shadow: 0 2px 8px rgba(52,199,89,0.3);
-}
-.row-actions { display: flex; gap: 2px; padding: 2px; }
-.act-btn {
-  width: 24px; height: 24px; display: flex; align-items: center; justify-content: center;
-  background: none; border: 1px solid transparent; color: var(--border);
-  cursor: pointer; border-radius: 4px; font-size: 14px; transition: all 0.15s;
-}
-.act-btn:hover { color: var(--text3); background: var(--surface); }
-.act-btn.del:hover { color: var(--red); }
-
-/* Add shot */
-.add-shot {
-  width: 100%; padding: 10px; font-size: 14px; font-weight: 600;
-  background: var(--bg); color: var(--text3);
-  border: 1px dashed var(--border-light); border-top: none;
-  border-radius: 0 0 var(--radius) var(--radius);
-  cursor: pointer; transition: all 0.15s;
-}
-.add-shot:hover { color: var(--accent); background: rgba(0,113,227,0.02); }
-.add-seq { display: block; margin: 8px 0 32px; }
-
-/* Tips */
-.tips {
-  margin: 24px 0 40px; padding: 14px 18px;
-  background: var(--surface); border-radius: var(--radius);
-  border: 1px solid var(--border-light);
-  font-size: 13px; color: var(--text3); line-height: 1.6;
-}
-.tips strong { color: var(--text2); }
-
-/* =========== PDF Export mode =========== */
-.pdf-mode .header, .pdf-mode .toolbar, .pdf-mode .row-actions,
-.pdf-mode .drag-handle, .pdf-mode .add-shot, .pdf-mode .add-seq,
-.pdf-mode .tips, .pdf-mode .done-btn, .pdf-mode .vfx-check { display: none !important; }
-.pdf-mode { padding: 10px !important; }
-.pdf-mode .container { padding: 0; }
-
-.pdf-mode .shot-header {
-  grid-template-columns: var(--grid-cols-pdf) !important;
-}
-.pdf-mode .shot-row {
-  grid-template-columns: var(--grid-cols-pdf) !important;
-  min-height: 28px;
-  border-left: none !important;
-}
-.pdf-mode .ref-cell { aspect-ratio: 9/16; border: 1px solid var(--border-light); cursor: default; }
-.pdf-mode .ref-cell img { object-fit: contain !important; }
-.pdf-mode .ref-cell .ref-placeholder { display: none; }
-.pdf-mode .ref-cell .ref-remove { display: none !important; }
-.pdf-mode .shot-row input,
-.pdf-mode .shot-row select,
-.pdf-mode .shot-row textarea {
-  font-size: 11px !important; padding: 2px 4px !important;
-  border: none !important; background: transparent !important;
-  box-shadow: none !important; -webkit-appearance: none; appearance: none;
-  pointer-events: none; background-image: none !important;
-}
-.pdf-mode .shot-row textarea { resize: none !important; overflow: hidden !important; }
-.pdf-mode .shot-header span { font-size: 9px !important; padding: 6px 4px !important; }
-.pdf-mode .cell { padding: 3px 4px !important; min-height: 24px !important; }
-.pdf-mode .shot-row.done { background: var(--green-bg) !important; border-left: 3px solid var(--green) !important; }
-.pdf-mode .seq-header { padding: 8px 12px; }
-.pdf-mode .seq-wrap { margin: 8px 0; }
-.pdf-mode .seq-del { display: none !important; }
-.pdf-mode .pdf-header { display: flex !important; justify-content: space-between; align-items: flex-start; padding: 12px 0; margin-bottom: 8px; border-bottom: 2px solid var(--text); }
-.pdf-header { display: none; }
-.pdf-mode .pdf-title { font-size: 22px; font-weight: 700; }
-.pdf-mode .pdf-meta { font-size: 12px; color: var(--text2); text-align: right; }
-
-/* =========== Responsive =========== */
-@media (max-width: 1024px) {
-  .shot-header { display: none; }
-  .shot-row {
-    display: flex; flex-wrap: wrap; gap: 6px 10px;
-    padding: 10px 12px; grid-template-columns: unset;
-  }
-  .shot-row .cell { min-height: auto; padding: 2px 0; }
-  .shot-row .cell-desc, .shot-row .cell-dial { width: 100%; }
-  .shot-row .cell-ref { width: 100%; }
-  .shot-row .cell-ref .ref-cell { max-height: 160px; aspect-ratio: 9/16; width: auto; height: auto; }
-  .shot-row label.mobile-label {
-    display: block; font-size: 10px; font-weight: 600;
-    color: var(--text3); text-transform: uppercase; letter-spacing: 0.3px; margin-bottom: 2px;
-  }
-}
-@media (min-width: 1025px) {
-  .mobile-label { display: none !important; }
-}
+@media(min-width:1025px){label.mobile-label{display:none}}
 </style>
 </head>
 <body>
 <div id="app"></div>
 <script>
-/* ==========================================================================
-   SHOTLIST — Application Logic
-   ========================================================================== */
+/* ========== Constants ========== */
+var INT_EXT = ['','INT','EXT'];
+var SHOT_SIZES = ['','EWS','VWS','WS','MWS','MS','MCU','CU','BCU','ECU'];
+var ANGLES = ['','Eye Level','Low Angle','High Angle','Dutch Angle','Bird\'s Eye','Worm\'s Eye','Over Shoulder','POV'];
+var AUDIO = ['','Sync','MOS','VO','Foley','Atmo'];
+var STORE_KEY = 'shotlist_v2';
 
-const SHOT_SIZES = ["", "EWS", "WS", "FS", "MFS", "MS", "MCU", "CU", "ECU", "Detail", "POV", "OTS", "Insert"];
-const ANGLES = ["", "Eye Level", "Low Angle", "High Angle", "Dutch", "Bird's Eye", "Worm's Eye", "Over Shoulder"];
-const INT_EXT = ["", "INT", "EXT", "INT/EXT"];
-const AUDIO = ["", "Sync", "MOS", "VO", "Atmo", "SFX"];
-
-const SAMPLE = {
-  title: "UI Hero E02",
-  date: "2025-08-19",
-  director: "",
-  dop: "",
-  sequences: [{
-    id: "seq-1",
-    name: "Hero 02",
-    shots: [
-      { id:"s1", shotNum:"01", intExt:"INT", location:"Loc 1", shotSize:"WS", shotAngle:"Eye Level", audio:"MOS", subject:"Thomas", description:"", dialogue:"", done:false, vfx:false, refImg:"" },
-      { id:"s2", shotNum:"02", intExt:"INT", location:"Loc 2", shotSize:"MS", shotAngle:"Low Angle", audio:"Sync", subject:"Thomas", description:"", dialogue:"", done:false, vfx:false, refImg:"" },
-      { id:"s3", shotNum:"03", intExt:"INT", location:"Loc 2", shotSize:"WS", shotAngle:"Eye Level", audio:"MOS", subject:"Thomas", description:"", dialogue:"", done:false, vfx:false, refImg:"" },
-      { id:"s3a", shotNum:"03A", intExt:"INT", location:"Loc 2", shotSize:"CU", shotAngle:"Eye Level", audio:"MOS", subject:"Lego", description:"", dialogue:"", done:false, vfx:true, refImg:"" },
-      { id:"s4", shotNum:"04", intExt:"INT", location:"Loc 2", shotSize:"ECU", shotAngle:"Eye Level", audio:"Sync", subject:"Thomas", description:"", dialogue:"", done:false, vfx:false, refImg:"" },
-      { id:"s5", shotNum:"05", intExt:"INT", location:"Loc 2", shotSize:"MS", shotAngle:"Eye Level", audio:"Sync", subject:"Thomas", description:"", dialogue:"", done:false, vfx:false, refImg:"" },
-      { id:"s6", shotNum:"06", intExt:"INT", location:"Loc 2", shotSize:"MS", shotAngle:"Eye Level", audio:"Sync", subject:"Thomas", description:"", dialogue:"", done:false, vfx:false, refImg:"" },
-      { id:"s7", shotNum:"07", intExt:"INT", location:"Loc 3", shotSize:"WS", shotAngle:"Eye Level", audio:"Sync", subject:"Thomas", description:"", dialogue:"", done:false, vfx:false, refImg:"" },
-      { id:"s8", shotNum:"08", intExt:"INT", location:"Loc 3", shotSize:"CU", shotAngle:"Eye Level", audio:"Sync", subject:"Thomas", description:"", dialogue:"", done:false, vfx:false, refImg:"" },
-      { id:"s9", shotNum:"09", intExt:"INT", location:"", shotSize:"", shotAngle:"", audio:"MOS", subject:"", description:"", dialogue:"", done:false, vfx:false, refImg:"" },
-      { id:"s10", shotNum:"10", intExt:"INT", location:"Loc 2", shotSize:"WS", shotAngle:"Eye Level", audio:"Sync", subject:"Thomas", description:"", dialogue:"", done:false, vfx:false, refImg:"" },
-      { id:"s11", shotNum:"11", intExt:"INT", location:"Loc 2", shotSize:"MS", shotAngle:"High Angle", audio:"Sync", subject:"Thomas", description:"", dialogue:"", done:false, vfx:false, refImg:"" },
-      { id:"s12", shotNum:"12", intExt:"INT", location:"Loc 4", shotSize:"MS", shotAngle:"Eye Level", audio:"MOS", subject:"Thomas", description:"", dialogue:"", done:false, vfx:false, refImg:"" },
-      { id:"s13", shotNum:"13", intExt:"INT", location:"Loc 4", shotSize:"MS", shotAngle:"Eye Level", audio:"Sync", subject:"Thomas", description:"", dialogue:"", done:false, vfx:false, refImg:"" },
-      { id:"s13a", shotNum:"13A", intExt:"INT", location:"", shotSize:"CU", shotAngle:"", audio:"MOS", subject:"", description:"", dialogue:"", done:false, vfx:false, refImg:"" },
-      { id:"s14", shotNum:"14", intExt:"INT", location:"", shotSize:"", shotAngle:"", audio:"", subject:"", description:"", dialogue:"", done:false, vfx:false, refImg:"" },
-      { id:"s15", shotNum:"15", intExt:"INT", location:"Loc 4", shotSize:"MS", shotAngle:"Eye Level", audio:"Sync", subject:"Thomas", description:"", dialogue:"", done:false, vfx:false, refImg:"" },
-      { id:"s16", shotNum:"16", intExt:"INT", location:"Loc 2", shotSize:"WS", shotAngle:"Eye Level", audio:"Sync", subject:"Thomas", description:"", dialogue:"", done:false, vfx:false, refImg:"" },
-      { id:"s16a", shotNum:"16A", intExt:"INT", location:"Loc 2", shotSize:"MS", shotAngle:"Eye Level", audio:"Sync", subject:"Thomas", description:"", dialogue:"", done:false, vfx:false, refImg:"" },
-      { id:"s17", shotNum:"17", intExt:"EXT", location:"", shotSize:"EWS", shotAngle:"", audio:"MOS", subject:"Thomas", description:"", dialogue:"", done:false, vfx:false, refImg:"" },
-      { id:"s18", shotNum:"18", intExt:"INT", location:"Loc 2", shotSize:"CU", shotAngle:"Eye Level", audio:"Sync", subject:"Thomas", description:"", dialogue:"", done:false, vfx:false, refImg:"" },
-      { id:"s18a", shotNum:"18alt", intExt:"INT", location:"Loc 2", shotSize:"MS", shotAngle:"Eye Level", audio:"Sync", subject:"Thomas + Team", description:"", dialogue:"", done:false, vfx:false, refImg:"" }
-    ]
-  }]
+/* ========== State ========== */
+var state = {
+  title: 'Untitled Project', date: '', director: '', dop: '',
+  sortMode: 'script', filterLoc: '',
+  sequences: [{ name: 'Sequence 1', shots: [makeShot('01')] }]
 };
 
-let state = JSON.parse(JSON.stringify(SAMPLE));
-let filterLoc = "";
-let viewMode = "script";
+function makeShot(num) {
+  return { shotNum: num||'', intExt:'INT', location:'', shotSize:'', shotAngle:'', audio:'', subject:'', description:'', dialogue:'', refImg:'', vfx:false, done:false };
+}
 
-/* ---------- Helpers ---------- */
-function gid() { return 'id-' + Math.random().toString(36).slice(2, 9); }
-function save() { try { localStorage.setItem('shotlist_v2', JSON.stringify(state)); } catch(e) {} }
-function load() { try { const d = localStorage.getItem('shotlist_v2'); if (d) state = JSON.parse(d); } catch(e) {} }
-function getAllShots() { return state.sequences.flatMap(s => s.shots); }
-function getLocations() { return [...new Set(getAllShots().map(s => s.location).filter(Boolean))].sort(); }
-function esc(s) { return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+/* ========== Persistence ========== */
+function save() { try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch(e){} }
+function load() {
+  try {
+    var d = localStorage.getItem(STORE_KEY);
+    if (d) { var p = JSON.parse(d); if (p && p.sequences) state = p; }
+  } catch(e){}
+}
 
+/* ========== Helpers ========== */
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 function makeOpts(arr, sel) {
-  return arr.map(o => '<option value="' + o + '"' + (o === sel ? ' selected' : '') + '>' + (o || '\u2014') + '</option>').join('');
+  return arr.map(function(v){ return '<option value="'+esc(v)+'"'+(v===sel?' selected':'')+'>'+esc(v||'\u2014')+'</option>'; }).join('');
 }
 
-/* ---------- State mutations ---------- */
-function updateField(si, oi, f, v) { state.sequences[si].shots[oi][f] = v; save(); }
-function updateMeta(f, v) { state[f] = v; save(); }
-function updateSeqName(si, v) { state.sequences[si].name = v; save(); }
-function toggleDone(si, oi) { state.sequences[si].shots[oi].done = !state.sequences[si].shots[oi].done; save(); render(); }
-
+/* ========== Update functions ========== */
+function updateMeta(k,v) { state[k]=v; save(); }
+function updateSeqName(si,v) { state.sequences[si].name=v; save(); }
+function updateField(si,oi,k,v) { state.sequences[si].shots[oi][k]=v; save(); }
+function toggleDone(si,oi) { state.sequences[si].shots[oi].done=!state.sequences[si].shots[oi].done; save(); render(); }
 function addShot(si) {
-  const seq = state.sequences[si];
-  const last = seq.shots.length > 0 ? seq.shots[seq.shots.length - 1].shotNum : "00";
-  const next = String(parseInt(last) + 1 || seq.shots.length + 1).padStart(2, '0');
-  seq.shots.push({ id: gid(), shotNum: next, intExt: "INT", location: "", shotSize: "MS", shotAngle: "Eye Level", audio: "Sync", subject: "", description: "", dialogue: "", refImg: "", done: false, vfx: false });
-  save(); render();
+  var shots=state.sequences[si].shots;
+  var last=shots[shots.length-1];
+  var num=last?String(parseInt(last.shotNum)||shots.length).padStart(2,'0'):String(shots.length+1).padStart(2,'0');
+  var n=parseInt(num); n++; num=String(n).padStart(2,'0');
+  shots.push(makeShot(num)); save(); render();
 }
-function deleteShot(si, oi) { state.sequences[si].shots.splice(oi, 1); save(); render(); }
-function dupShot(si, oi) {
-  const o = state.sequences[si].shots[oi];
-  state.sequences[si].shots.splice(oi + 1, 0, { ...o, id: gid(), shotNum: o.shotNum + 'A', done: false, refImg: "" });
-  save(); render();
+function dupShot(si,oi) {
+  var s=JSON.parse(JSON.stringify(state.sequences[si].shots[oi]));
+  s.shotNum+='A'; s.done=false;
+  state.sequences[si].shots.splice(oi+1,0,s); save(); render();
 }
+function deleteShot(si,oi) { state.sequences[si].shots.splice(oi,1); save(); render(); }
 function addSequence() {
-  state.sequences.push({ id: gid(), name: 'Sequence ' + (state.sequences.length + 1), shots: [{ id: gid(), shotNum: '01', intExt: 'INT', location: '', shotSize: 'MS', shotAngle: 'Eye Level', audio: 'Sync', subject: '', description: '', dialogue: '', refImg: '', done: false, vfx: false }] });
-  save(); render();
+  var n=state.sequences.length+1;
+  state.sequences.push({name:'Sequence '+n,shots:[makeShot('01')]}); save(); render();
 }
-function deleteSequence(si) { if (state.sequences.length <= 1) return; state.sequences.splice(si, 1); save(); render(); }
-function resetData() { if (confirm('Reset to sample data?')) { state = JSON.parse(JSON.stringify(SAMPLE)); save(); render(); } }
-
-/* ---------- Import / Export ---------- */
-function exportJSON() {
-  const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
-  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
-  a.download = (state.title || 'shotlist').replace(/\s+/g, '_') + '.json';
-  a.click(); URL.revokeObjectURL(a.href);
-}
-function importJSON() {
-  const inp = document.createElement('input'); inp.type = 'file'; inp.accept = '.json';
-  inp.onchange = e => {
-    const f = e.target.files[0]; if (!f) return;
-    const r = new FileReader();
-    r.onload = ev => { try { state = JSON.parse(ev.target.result); save(); render(); } catch(err) { alert('Invalid JSON'); } };
-    r.readAsText(f);
-  };
-  inp.click();
-}
-function exportPDF() {
-  const app = document.getElementById('app');
-  app.classList.add('pdf-mode');
-  html2pdf().set({
-    margin: [8, 8, 8, 8],
-    filename: (state.title || 'shotlist').replace(/\s+/g, '_') + '.pdf',
-    image: { type: 'jpeg', quality: 0.95 },
-    html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff' },
-    jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
-  }).from(app).save().then(() => { app.classList.remove('pdf-mode'); });
+function deleteSequence(si) {
+  if(state.sequences.length<2){alert('Need at least one sequence');return;}
+  state.sequences.splice(si,1); save(); render();
 }
 
-/* ---------- Reference image handling ---------- */
-function handleRefClick(si, oi) {
-  const inp = document.createElement('input'); inp.type = 'file'; inp.accept = 'image/*';
-  inp.onchange = e => {
-    const f = e.target.files[0]; if (!f) return;
-    const reader = new FileReader();
-    reader.onload = ev => { state.sequences[si].shots[oi].refImg = ev.target.result; save(); render(); };
-    reader.readAsDataURL(f);
-  };
-  inp.click();
-}
-function removeRefImg(e, si, oi) {
-  e.stopPropagation();
-  state.sequences[si].shots[oi].refImg = ''; save(); render();
-}
-function refDragOver(e) { if (dragSrc) { return; } e.preventDefault(); e.stopPropagation(); e.currentTarget.classList.add('drag-hover'); }
-function refDragLeave(e) { e.currentTarget.classList.remove('drag-hover'); }
-function refDrop(e, si, oi) {
-  if (dragSrc) { return; }
-  e.preventDefault(); e.stopPropagation(); e.currentTarget.classList.remove('drag-hover');
-  const f = e.dataTransfer.files[0];
-  if (f && f.type.startsWith('image/')) {
-    const reader = new FileReader();
-    reader.onload = ev => { state.sequences[si].shots[oi].refImg = ev.target.result; save(); render(); };
-    reader.readAsDataURL(f);
-  }
+/* ========== Sort / Filter ========== */
+function setSort(m) { state.sortMode=m; save(); render(); }
+function setFilter(v) { state.filterLoc=v; save(); render(); }
+function allLocations() {
+  var locs={};
+  state.sequences.forEach(function(seq){ seq.shots.forEach(function(s){ if(s.location) locs[s.location]=1; }); });
+  return Object.keys(locs).sort();
 }
 
-/* ---------- Render ---------- */
-function render() {
-  const all = getAllShots();
-  const total = all.length;
-  const done = all.filter(s => s.done).length;
-  const pct = total > 0 ? (done / total * 100) : 0;
-  const locs = getLocations();
-  let h = '';
-
-  /* PDF header (hidden until pdf-mode) */
-  h += '<div class="pdf-header container"><div><div class="pdf-title">' + esc(state.title) + '</div>';
-  h += '<div style="font-size:13px;color:var(--text2);margin-top:2px">' + esc(state.date);
-  if (state.director) h += ' \u00b7 Dir: ' + esc(state.director);
-  if (state.dop) h += ' \u00b7 DoP: ' + esc(state.dop);
-  h += '</div></div>';
-  h += '<div class="pdf-meta">' + done + ' / ' + total + ' shots<br>' + new Date().toLocaleDateString() + '</div></div>';
-
-  /* Header */
-  h += '<div class="header"><div class="header-inner">';
-  h += '<div class="header-top">';
-  h += '<input class="project-title" value="' + esc(state.title) + '" placeholder="Project Title" onchange="updateMeta(\'title\',this.value);render()">';
-  h += '<div class="progress-wrap"><span class="progress-text"><strong>' + done + '</strong> / ' + total + '</span>';
-  h += '<div class="progress-bar"><div class="progress-fill" style="width:' + pct + '%;background:' + (pct >= 100 ? 'var(--green)' : 'var(--orange)') + '"></div></div></div>';
-  h += '</div>';
-  h += '<div class="meta-row">';
-  h += '<span class="meta-label">Date <input type="date" class="meta-input" value="' + esc(state.date) + '" onchange="updateMeta(\'date\',this.value)"></span>';
-  h += '<span class="meta-label">Director <input class="meta-input" value="' + esc(state.director) + '" placeholder="\u2014" onchange="updateMeta(\'director\',this.value)"></span>';
-  h += '<span class="meta-label">DoP <input class="meta-input" value="' + esc(state.dop) + '" placeholder="\u2014" onchange="updateMeta(\'dop\',this.value)"></span>';
-  h += '</div></div></div>';
-
-  /* Toolbar */
-  h += '<div class="toolbar">';
-  h += '<select class="filter-select" onchange="filterLoc=this.value;render()"><option value="">All Locations</option>';
-  locs.forEach(l => { h += '<option value="' + esc(l) + '"' + (filterLoc === l ? ' selected' : '') + '>' + esc(l) + '</option>'; });
-  h += '</select>';
-  h += '<div class="btn-group">';
-  [{ k:'script', l:'Script Order' }, { k:'location', l:'By Location' }, { k:'status', l:'By Status' }].forEach(m => {
-    h += '<button class="btn-tab' + (viewMode === m.k ? ' active' : '') + '" onclick="viewMode=\'' + m.k + '\';render()">' + m.l + '</button>';
-  });
-  h += '</div>';
-  h += '<span class="spacer"></span>';
-  h += '<button class="btn" onclick="importJSON()">Import</button>';
-  h += '<button class="btn" onclick="exportJSON()">Export JSON</button>';
-  h += '<button class="btn" onclick="exportPDF()">Export PDF</button>';
-  h += '<button class="btn" onclick="addSequence()">+ Sequence</button>';
-  h += '</div>';
-
-  /* Sequences */
-  h += '<div class="container">';
-  state.sequences.forEach((seq, si) => {
-    let shots = seq.shots.map((sh, i) => ({ ...sh, _oi: i }));
-    if (filterLoc) shots = shots.filter(s => s.location === filterLoc);
-    if (viewMode === 'location') shots.sort((a, b) => a.location.localeCompare(b.location));
-    else if (viewMode === 'status') shots.sort((a, b) => a.done === b.done ? 0 : a.done ? 1 : -1);
-    const seqDone = seq.shots.filter(s => s.done).length;
-
-    h += '<div class="seq-wrap">';
-    h += '<div class="seq-header">';
-    h += '<span class="seq-badge">SEQ ' + (si + 1) + '</span>';
-    h += '<input class="seq-name" value="' + esc(seq.name) + '" onchange="updateSeqName(' + si + ',this.value)">';
-    h += '<span class="seq-stats">' + seqDone + ' / ' + seq.shots.length + ' done</span>';
-    if (state.sequences.length > 1) h += '<button class="seq-del" onclick="deleteSequence(' + si + ')" title="Delete sequence">&times;</button>';
-    h += '</div>';
-
-    h += '<div class="shots-table">';
-
-    /* Column headers — 14 spans matching 14 grid tracks */
-    h += '<div class="shot-header">';
-    h += '<span></span>';       /* drag handle */
-    h += '<span>Shot #</span>';
-    h += '<span>INT/EXT</span>';
-    h += '<span>Location</span>';
-    h += '<span>Size</span>';
-    h += '<span>Angle</span>';
-    h += '<span>Audio</span>';
-    h += '<span>Subject</span>';
-    h += '<span>Description</span>';
-    h += '<span>Dialogue</span>';
-    h += '<span>Ref</span>';
-    h += '<span>VFX</span>';
-    h += '<span></span>';       /* done */
-    h += '<span></span>';       /* actions */
-    h += '</div>';
-
-    /* Shot rows */
-    shots.forEach(shot => {
-      const oi = shot._oi;
-      h += '<div class="shot-row' + (shot.done ? ' done' : '') + '" ondragover="dragOver(event)" ondrop="drop(event,' + si + ',' + oi + ')">';
-
-      /* 1. Drag handle */
-      h += '<div class="drag-handle" draggable="true" data-seq="' + si + '" data-idx="' + oi + '" '
-        + 'ontouchstart="touchDragStart(event,' + si + ',' + oi + ')" ontouchmove="touchDragMove(event)" ontouchend="touchDragEnd(event,' + si + ')" '
-        + 'ondragstart="dragStart(event,' + si + ',' + oi + ')" ondragend="dragEnd()"'
-        + '>&#8942;&#8942;</div>';
-
-      /* 2. Shot # */
-      h += '<div class="cell"><label class="mobile-label">Shot #</label>'
-        + '<input type="text" value="' + esc(shot.shotNum) + '" style="font-weight:700" '
-        + 'onchange="updateField(' + si + ',' + oi + ',\'shotNum\',this.value)"></div>';
-
-      /* 3. INT/EXT */
-      h += '<div class="cell"><label class="mobile-label">INT/EXT</label>'
-        + '<select onchange="updateField(' + si + ',' + oi + ',\'intExt\',this.value)">'
-        + makeOpts(INT_EXT, shot.intExt) + '</select></div>';
-
-      /* 4. Location */
-      h += '<div class="cell"><label class="mobile-label">Location</label>'
-        + '<input type="text" value="' + esc(shot.location) + '" placeholder="\u2014" '
-        + 'onchange="updateField(' + si + ',' + oi + ',\'location\',this.value);render()"></div>';
-
-      /* 5. Size */
-      h += '<div class="cell"><label class="mobile-label">Size</label>'
-        + '<select onchange="updateField(' + si + ',' + oi + ',\'shotSize\',this.value)">'
-        + makeOpts(SHOT_SIZES, shot.shotSize) + '</select></div>';
-
-      /* 6. Angle */
-      h += '<div class="cell"><label class="mobile-label">Angle</label>'
-        + '<select onchange="updateField(' + si + ',' + oi + ',\'shotAngle\',this.value)">'
-        + makeOpts(ANGLES, shot.shotAngle) + '</select></div>';
-
-      /* 7. Audio */
-      h += '<div class="cell"><label class="mobile-label">Audio</label>'
-        + '<select onchange="updateField(' + si + ',' + oi + ',\'audio\',this.value)">'
-        + makeOpts(AUDIO, shot.audio) + '</select></div>';
-
-      /* 8. Subject */
-      h += '<div class="cell"><label class="mobile-label">Subject</label>'
-        + '<input type="text" value="' + esc(shot.subject) + '" placeholder="\u2014" '
-        + 'onchange="updateField(' + si + ',' + oi + ',\'subject\',this.value)"></div>';
-
-      /* 9. Description */
-      h += '<div class="cell cell-desc"><label class="mobile-label">Description</label>'
-        + '<textarea onchange="updateField(' + si + ',' + oi + ',\'description\',this.value)" '
-        + 'placeholder="Shot description\u2026">' + esc(shot.description) + '</textarea></div>';
-
-      /* 10. Dialogue */
-      h += '<div class="cell cell-dial"><label class="mobile-label">Dialogue</label>'
-        + '<textarea onchange="updateField(' + si + ',' + oi + ',\'dialogue\',this.value)" '
-        + 'placeholder="Dialogue\u2026">' + esc(shot.dialogue) + '</textarea></div>';
-
-      /* 11. Reference image */
-      h += '<div class="cell cell-ref"><label class="mobile-label">Reference</label>';
-      h += '<div class="ref-cell' + (shot.refImg ? ' has-img' : '') + '" '
-        + 'onclick="handleRefClick(' + si + ',' + oi + ')" '
-        + 'ondragover="refDragOver(event)" ondragleave="refDragLeave(event)" '
-        + 'ondrop="refDrop(event,' + si + ',' + oi + ')">';
-      if (shot.refImg) {
-        h += '<img src="' + shot.refImg + '" alt="Ref">';
-        h += '<button class="ref-remove" onclick="removeRefImg(event,' + si + ',' + oi + ')" title="Remove">&times;</button>';
-      } else {
-        h += '<div class="ref-placeholder"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>9:16</div>';
-      }
-      h += '</div></div>';
-
-      /* 12. VFX */
-      h += '<div class="cell" style="justify-content:center"><input type="checkbox" class="vfx-check" '
-        + (shot.vfx ? 'checked' : '') + ' onchange="updateField(' + si + ',' + oi + ',\'vfx\',this.checked)" title="VFX"></div>';
-
-      /* 13. Done */
-      h += '<div class="cell" style="justify-content:center"><button class="done-btn' + (shot.done ? ' checked' : '') + '" '
-        + 'onclick="toggleDone(' + si + ',' + oi + ')" title="' + (shot.done ? 'Mark not done' : 'Mark done') + '">'
-        + (shot.done ? '&#10003;' : '') + '</button></div>';
-
-      /* 14. Actions */
-      h += '<div class="row-actions">';
-      h += '<button class="act-btn" onclick="dupShot(' + si + ',' + oi + ')" title="Duplicate">&#10697;</button>';
-      h += '<button class="act-btn del" onclick="if(confirm(\'Delete shot ' + esc(shot.shotNum) + '?\'))deleteShot(' + si + ',' + oi + ')" title="Delete">&times;</button>';
-      h += '</div>';
-
-      h += '</div>'; /* shot-row */
-    });
-
-    h += '</div>'; /* shots-table */
-    h += '<button class="add-shot" onclick="addShot(' + si + ')">+ Add Shot</button>';
-    h += '</div>'; /* seq-wrap */
-  });
-
-  h += '<button class="btn add-seq" onclick="addSequence()">+ Add Sequence</button>';
-  h += '<div class="tips"><strong>Tips:</strong> Drag &#8942;&#8942; to reorder \u00b7 Click \u25cb to mark done \u00b7 "By Location" groups shots for efficient shooting \u00b7 Export JSON to save, Import to reload \u00b7 Export PDF for print</div>';
-  h += '</div>'; /* container */
-
-  document.getElementById('app').innerHTML = h;
-}
-
-/* ---------- Drag & Drop (desktop) ---------- */
-let dragSrc = null;
-function dragStart(e, si, oi) {
-  dragSrc = { si, oi };
-  e.dataTransfer.effectAllowed = 'move';
-  const row = e.target.closest('.shot-row');
-  if (row) row.classList.add('dragging');
+/* ========== Drag & Drop (desktop) ========== */
+var dragSrc=null;
+function dragStart(e,si,oi) {
+  dragSrc={si:si,oi:oi};
+  e.dataTransfer.effectAllowed='move';
+  var row=e.target.closest('.shot-row');
+  if(row) row.classList.add('dragging');
 }
 function dragOver(e) {
-  e.preventDefault();
-  e.dataTransfer.dropEffect = 'move';
-  const row = e.target.closest('.shot-row');
-  document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
-  if (row) row.classList.add('drag-over');
+  e.preventDefault();e.dataTransfer.dropEffect='move';
+  var row=e.target.closest('.shot-row');
+  document.querySelectorAll('.drag-over').forEach(function(el){el.classList.remove('drag-over')});
+  if(row) row.classList.add('drag-over');
 }
-function drop(e, si, oi) {
+function drop(e,si,oi) {
   e.preventDefault();
-  document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
-  if (!dragSrc || dragSrc.si !== si) { dragSrc = null; return; }
-  const shots = state.sequences[si].shots;
-  const [removed] = shots.splice(dragSrc.oi, 1);
-  shots.splice(oi, 0, removed);
-  dragSrc = null;
-  save(); render();
+  document.querySelectorAll('.drag-over').forEach(function(el){el.classList.remove('drag-over')});
+  if(!dragSrc||dragSrc.si!==si){dragSrc=null;return;}
+  var shots=state.sequences[si].shots;
+  var removed=shots.splice(dragSrc.oi,1)[0];
+  shots.splice(oi,0,removed);
+  dragSrc=null; save(); render();
 }
 function dragEnd() {
-  dragSrc = null;
-  document.querySelectorAll('.dragging,.drag-over').forEach(el => { el.classList.remove('dragging'); el.classList.remove('drag-over'); });
+  dragSrc=null;
+  document.querySelectorAll('.dragging,.drag-over').forEach(function(el){el.classList.remove('dragging');el.classList.remove('drag-over')});
 }
 
-/* ---------- Touch Drag (mobile) ---------- */
-let touchDragData = null;
-let touchClone = null;
-function touchDragStart(e, si, oi) {
-  touchDragData = { si, oi, startY: e.touches[0].clientY };
-  const row = e.target.closest('.shot-row');
-  if (row) {
-    row.classList.add('dragging');
-    touchClone = row.cloneNode(true);
-    touchClone.style.cssText = 'position:fixed;z-index:9999;pointer-events:none;opacity:0.8;width:' + row.offsetWidth + 'px;left:' + row.getBoundingClientRect().left + 'px;top:' + e.touches[0].clientY + 'px;transform:translateY(-50%);box-shadow:0 4px 20px rgba(0,0,0,0.15);';
-    document.body.appendChild(touchClone);
-  }
+/* ========== Touch Drag ========== */
+var touchDragData=null;
+function touchDragStart(e,si,oi) {
+  touchDragData={si:si,oi:oi};
+  var row=e.target.closest('.shot-row');
+  if(row) row.classList.add('dragging');
 }
 function touchDragMove(e) {
-  if (!touchDragData) return;
+  if(!touchDragData) return;
   e.preventDefault();
-  if (touchClone) touchClone.style.top = e.touches[0].clientY + 'px';
-  const el = document.elementFromPoint(e.touches[0].clientX, e.touches[0].clientY);
-  document.querySelectorAll('.drag-over').forEach(r => r.classList.remove('drag-over'));
-  if (el) { const row = el.closest('.shot-row'); if (row) row.classList.add('drag-over'); }
+  var t=e.changedTouches[0];
+  var el=document.elementFromPoint(t.clientX,t.clientY);
+  document.querySelectorAll('.drag-over').forEach(function(r){r.classList.remove('drag-over')});
+  if(el){var row=el.closest('.shot-row');if(row) row.classList.add('drag-over');}
 }
-function touchDragEnd(e, si) {
-  if (!touchDragData) return;
-  if (touchClone) { touchClone.remove(); touchClone = null; }
-  document.querySelectorAll('.dragging,.drag-over').forEach(r => { r.classList.remove('dragging'); r.classList.remove('drag-over'); });
-  const overEl = document.elementFromPoint(e.changedTouches[0].clientX, e.changedTouches[0].clientY);
-  if (overEl) {
-    const row = overEl.closest('.shot-row');
-    if (row) {
-      const handle = row.querySelector('.drag-handle');
-      if (handle && handle.dataset.seq == touchDragData.si) {
-        const targetIdx = parseInt(handle.dataset.idx);
-        const shots = state.sequences[si].shots;
-        const [removed] = shots.splice(touchDragData.oi, 1);
-        shots.splice(targetIdx, 0, removed);
+function touchDragEnd(e,si) {
+  if(!touchDragData) return;
+  document.querySelectorAll('.dragging,.drag-over').forEach(function(r){r.classList.remove('dragging');r.classList.remove('drag-over')});
+  var t=e.changedTouches[0];
+  var overEl=document.elementFromPoint(t.clientX,t.clientY);
+  if(overEl){
+    var row=overEl.closest('.shot-row');
+    if(row){
+      var handle=row.querySelector('.drag-handle');
+      if(handle&&handle.dataset.seq==touchDragData.si){
+        var targetIdx=parseInt(handle.dataset.idx);
+        var shots=state.sequences[si].shots;
+        var removed=shots.splice(touchDragData.oi,1)[0];
+        shots.splice(targetIdx,0,removed);
         save(); render();
       }
     }
   }
-  touchDragData = null;
+  touchDragData=null;
 }
 
-/* ---------- Init ---------- */
+/* ========== Ref image ========== */
+function refDragOver(e) { if(dragSrc) return; e.preventDefault();e.stopPropagation();e.currentTarget.classList.add('drag-hover'); }
+function refDragLeave(e) { e.currentTarget.classList.remove('drag-hover'); }
+function refDrop(e,si,oi) {
+  if(dragSrc) return;
+  e.preventDefault();e.stopPropagation();e.currentTarget.classList.remove('drag-hover');
+  var file=e.dataTransfer.files[0];
+  if(!file||!file.type.startsWith('image/')) return;
+  var r=new FileReader();
+  r.onload=function(ev){ state.sequences[si].shots[oi].refImg=ev.target.result; save(); render(); };
+  r.readAsDataURL(file);
+}
+function handleRefClick(si,oi) {
+  var inp=document.createElement('input');inp.type='file';inp.accept='image/*';
+  inp.onchange=function(e){
+    var f=e.target.files[0];if(!f) return;
+    var r=new FileReader();
+    r.onload=function(ev){ state.sequences[si].shots[oi].refImg=ev.target.result; save(); render(); };
+    r.readAsDataURL(f);
+  };
+  inp.click();
+}
+function removeRefImg(e,si,oi) { e.stopPropagation(); state.sequences[si].shots[oi].refImg=''; save(); render(); }
+
+/* ========== Import / Export ========== */
+function exportJSON() {
+  var blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});
+  var a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download=(state.title||'shotlist').replace(/\s+/g,'_')+'.json';a.click();
+}
+function importJSON() {
+  var inp=document.createElement('input');inp.type='file';inp.accept='.json';
+  inp.onchange=function(e){
+    var f=e.target.files[0];if(!f) return;
+    var r=new FileReader();
+    r.onload=function(ev){ try{state=JSON.parse(ev.target.result);save();render();}catch(err){alert('Invalid JSON');} };
+    r.readAsText(f);
+  };
+  inp.click();
+}
+
+function exportPDF() {
+  var app=document.getElementById('app');
+  app.classList.add('pdf-mode');
+  /* Auto-size textareas so full text shows */
+  app.querySelectorAll('textarea').forEach(function(ta){
+    ta.style.height='auto'; ta.style.height=ta.scrollHeight+'px';
+  });
+  /* Remove select padding so text isn't clipped */
+  app.querySelectorAll('.shot-row select').forEach(function(sel){
+    sel.style.width='auto';sel.style.minWidth='0';
+  });
+  html2pdf().set({
+    margin:[6,6,6,6],
+    filename:(state.title||'shotlist').replace(/\s+/g,'_')+'.pdf',
+    image:{type:'jpeg',quality:0.92},
+    html2canvas:{scale:2,useCORS:true,backgroundColor:'#fff'},
+    jsPDF:{unit:'mm',format:'a4',orientation:'landscape'}
+  }).from(app).save().then(function(){ app.classList.remove('pdf-mode'); render(); });
+}
+
+/* ========== Render ========== */
+function render() {
+  var totalShots=0, totalDone=0;
+  state.sequences.forEach(function(seq){ seq.shots.forEach(function(s){ totalShots++; if(s.done) totalDone++; }); });
+
+  var h='';
+  /* PDF header */
+  h+='<div class="pdf-header"><div><div class="pdf-title">'+esc(state.title)+'</div>';
+  h+='<div class="pdf-meta">'+esc(state.date||'')+(state.director?' &middot; Dir: '+esc(state.director):'')+(state.dop?' &middot; DoP: '+esc(state.dop):'')+'</div>';
+  h+='</div><div class="pdf-meta" style="text-align:right">'+totalDone+' / '+totalShots+' shots<br>'+new Date().toLocaleDateString('de-DE')+'</div></div>';
+
+  /* Header */
+  h+='<div class="header"><div class="header-inner"><div class="header-top">';
+  h+='<input class="project-title" value="'+esc(state.title)+'" placeholder="Project Title" onchange="updateMeta(\'title\',this.value);render()">';
+  h+='<div class="progress-wrap"><span class="progress-text"><strong>'+totalDone+'</strong> / '+totalShots+'</span></div>';
+  h+='</div><div class="meta-row">';
+  h+='<span class="meta-label">Date <input type="date" class="meta-input" value="'+esc(state.date)+'" onchange="updateMeta(\'date\',this.value)"></span>';
+  h+='<span class="meta-label">Director <input class="meta-input" value="'+esc(state.director)+'" placeholder="\u2014" onchange="updateMeta(\'director\',this.value)"></span>';
+  h+='<span class="meta-label">DoP <input class="meta-input" value="'+esc(state.dop)+'" placeholder="\u2014" onchange="updateMeta(\'dop\',this.value)"></span>';
+  h+='</div></div></div>';
+
+  /* Toolbar */
+  h+='<div class="toolbar">';
+  var locs=allLocations();
+  h+='<select class="filter-select" onchange="setFilter(this.value)"><option value="">All Locations</option>';
+  locs.forEach(function(l){ h+='<option value="'+esc(l)+'"'+(state.filterLoc===l?' selected':'')+'>'+esc(l)+'</option>'; });
+  h+='</select>';
+  h+='<div class="btn-group">';
+  h+='<button class="btn-tab'+(state.sortMode==='script'?' active':'')+'" onclick="setSort(\'script\')">Script Order</button>';
+  h+='<button class="btn-tab'+(state.sortMode==='location'?' active':'')+'" onclick="setSort(\'location\')">By Location</button>';
+  h+='<button class="btn-tab'+(state.sortMode==='status'?' active':'')+'" onclick="setSort(\'status\')">By Status</button>';
+  h+='</div><div class="spacer"></div>';
+  h+='<button class="btn" onclick="importJSON()">Import</button>';
+  h+='<button class="btn" onclick="exportJSON()">Export JSON</button>';
+  h+='<button class="btn" onclick="exportPDF()">Export PDF</button>';
+  h+='<button class="btn" onclick="addSequence()">+ Sequence</button>';
+  h+='</div>';
+
+  /* Sequences */
+  h+='<div class="container">';
+  state.sequences.forEach(function(seq, si) {
+    var seqDone=0; seq.shots.forEach(function(s){ if(s.done) seqDone++; });
+    var shots=seq.shots.slice();
+
+    if(state.filterLoc) shots=shots.filter(function(s){ return s.location===state.filterLoc; });
+    if(state.sortMode==='location') shots.sort(function(a,b){ return (a.location||'').localeCompare(b.location||''); });
+    else if(state.sortMode==='status') shots.sort(function(a,b){ return (a.done?1:0)-(b.done?1:0); });
+
+    h+='<div class="seq-wrap"><div class="seq-header">';
+    h+='<span class="seq-badge">SEQ '+(si+1)+'</span>';
+    h+='<input class="seq-name" value="'+esc(seq.name)+'" onchange="updateSeqName('+si+',this.value)">';
+    h+='<span class="seq-stats">'+seqDone+' / '+seq.shots.length+' done</span>';
+    h+='<button class="seq-del" onclick="if(confirm(\'Delete sequence?\'))deleteSequence('+si+')" title="Delete">&times;</button>';
+    h+='</div><div class="shots-table">';
+
+    h+='<div class="shot-header"><span></span><span>Shot #</span><span>Int/Ext</span><span>Location</span><span>Size</span><span>Angle</span><span>Audio</span><span>Subject</span><span>Description</span><span>Dialogue</span><span>Ref</span><span>VFX</span><span>Done</span><span></span></div>';
+
+    shots.forEach(function(shot) {
+      var oi=seq.shots.indexOf(shot);
+      h+='<div class="shot-row'+(shot.done?' done':'')+'" ondragover="dragOver(event)" ondrop="drop(event,'+si+','+oi+')">';
+
+      h+='<div class="drag-handle" draggable="true" data-seq="'+si+'" data-idx="'+oi+'" '
+        +'ontouchstart="touchDragStart(event,'+si+','+oi+')" ontouchmove="touchDragMove(event)" ontouchend="touchDragEnd(event,'+si+')" '
+        +'ondragstart="dragStart(event,'+si+','+oi+')" ondragend="dragEnd()">&#8942;&#8942;</div>';
+
+      h+='<div class="cell"><label class="mobile-label">Shot #</label><input type="text" value="'+esc(shot.shotNum)+'" style="font-weight:700" onchange="updateField('+si+','+oi+',\'shotNum\',this.value)"></div>';
+      h+='<div class="cell"><label class="mobile-label">INT/EXT</label><select onchange="updateField('+si+','+oi+',\'intExt\',this.value)">'+makeOpts(INT_EXT,shot.intExt)+'</select></div>';
+      h+='<div class="cell"><label class="mobile-label">Location</label><input type="text" value="'+esc(shot.location)+'" placeholder="\u2014" onchange="updateField('+si+','+oi+',\'location\',this.value);render()"></div>';
+      h+='<div class="cell"><label class="mobile-label">Size</label><select onchange="updateField('+si+','+oi+',\'shotSize\',this.value)">'+makeOpts(SHOT_SIZES,shot.shotSize)+'</select></div>';
+      h+='<div class="cell"><label class="mobile-label">Angle</label><select onchange="updateField('+si+','+oi+',\'shotAngle\',this.value)">'+makeOpts(ANGLES,shot.shotAngle)+'</select></div>';
+      h+='<div class="cell"><label class="mobile-label">Audio</label><select onchange="updateField('+si+','+oi+',\'audio\',this.value)">'+makeOpts(AUDIO,shot.audio)+'</select></div>';
+      h+='<div class="cell"><label class="mobile-label">Subject</label><input type="text" value="'+esc(shot.subject)+'" placeholder="\u2014" onchange="updateField('+si+','+oi+',\'subject\',this.value)"></div>';
+      h+='<div class="cell cell-desc"><label class="mobile-label">Description</label><textarea onchange="updateField('+si+','+oi+',\'description\',this.value)" placeholder="Shot description\u2026">'+esc(shot.description)+'</textarea></div>';
+      h+='<div class="cell cell-dial"><label class="mobile-label">Dialogue</label><textarea onchange="updateField('+si+','+oi+',\'dialogue\',this.value)" placeholder="Dialogue\u2026">'+esc(shot.dialogue)+'</textarea></div>';
+
+      h+='<div class="cell cell-ref"><label class="mobile-label">Reference</label>';
+      h+='<div class="ref-cell'+(shot.refImg?' has-img':'')+'" onclick="handleRefClick('+si+','+oi+')" ondragover="refDragOver(event)" ondragleave="refDragLeave(event)" ondrop="refDrop(event,'+si+','+oi+')">';
+      if(shot.refImg){
+        h+='<img src="'+shot.refImg+'" alt="Ref">';
+        h+='<button class="ref-remove" onclick="removeRefImg(event,'+si+','+oi+')" title="Remove">&times;</button>';
+      } else {
+        h+='<div class="ref-placeholder"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>9:16</div>';
+      }
+      h+='</div></div>';
+
+      h+='<div class="cell" style="justify-content:center"><input type="checkbox" class="vfx-check" '+(shot.vfx?'checked':'')+' onchange="updateField('+si+','+oi+',\'vfx\',this.checked)" title="VFX"></div>';
+      h+='<div class="cell" style="justify-content:center"><button class="done-btn'+(shot.done?' checked':'')+'" onclick="toggleDone('+si+','+oi+')" title="'+(shot.done?'Not done':'Done')+'">'+(shot.done?'&#10003;':'')+'</button></div>';
+      h+='<div class="row-actions"><button class="act-btn" onclick="dupShot('+si+','+oi+')" title="Duplicate">&#10697;</button><button class="act-btn del" onclick="if(confirm(\'Delete shot '+esc(shot.shotNum)+'?\'))deleteShot('+si+','+oi+')" title="Delete">&times;</button></div>';
+      h+='</div>';
+    });
+
+    h+='</div>';
+    h+='<button class="add-shot" onclick="addShot('+si+')">+ Add Shot</button></div>';
+  });
+
+  h+='<button class="btn add-seq" onclick="addSequence()">+ Add Sequence</button>';
+  h+='<div class="tips"><strong>Tips:</strong> Drag &#8942;&#8942; to reorder &middot; Click ref cell for 9:16 image &middot; Export PDF for landscape A4 &middot; Auto-saves to browser</div>';
+  h+='</div>';
+
+  document.getElementById('app').innerHTML=h;
+}
+
+/* ========== Init ========== */
 load();
 render();
 </script>
