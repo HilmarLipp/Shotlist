@@ -83,7 +83,7 @@ input,select,textarea,button{font-family:inherit}
 .shot-row input[type="text"],.shot-row select,.shot-row textarea{width:100%;background:transparent;border:1px solid transparent;color:var(--text);padding:5px 6px;border-radius:5px;font-size:14px;transition:border-color .15s,box-shadow .15s;min-width:0}
 .shot-row input[type="text"]:focus,.shot-row select:focus,.shot-row textarea:focus{border-color:var(--accent);outline:none;box-shadow:0 0 0 3px rgba(0,113,227,.1);background:var(--bg)}
 .shot-row select{color:var(--text2);cursor:pointer;-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%2386868b'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 6px center;padding-right:20px}
-.shot-row textarea{resize:vertical;min-height:36px;line-height:1.35;font-size:13px}
+.shot-row textarea{resize:none;min-height:36px;line-height:1.35;font-size:13px;overflow:hidden}
 
 /* ===== REF IMAGE ===== */
 .ref-cell{width:100%;aspect-ratio:9/16;border:2px dashed var(--border-lt);border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;cursor:pointer;transition:border-color .2s,background .2s;background:var(--surface2)}
@@ -146,8 +146,10 @@ input,select,textarea,button{font-family:inherit}
 }
 .pdf-mode .shot-row select{padding-right:2px!important}
 .pdf-mode .shot-row textarea{resize:none!important;overflow:visible!important;white-space:pre-wrap!important}
+.pdf-text{font-size:9px;line-height:1.35;padding:3px 2px;white-space:pre-wrap;word-break:break-word;overflow-wrap:break-word;color:var(--text);min-height:0}
 .pdf-mode .shot-header span{font-size:8px!important;padding:5px 3px!important}
-.pdf-mode .cell{padding:3px 2px!important;min-height:auto!important;align-items:flex-start!important;overflow:visible!important}
+.pdf-mode .cell{padding:3px 2px!important;min-height:auto!important;align-items:flex-start!important;overflow:visible!important;min-width:0}
+.pdf-mode .shots-table{overflow:visible!important}
 .pdf-mode .shot-row.done{background:var(--green-bg)!important;border-left:3px solid var(--green)!important}
 .pdf-mode .seq-header{padding:6px 10px}
 .pdf-mode .seq-wrap{margin:6px 0}
@@ -199,6 +201,10 @@ function load() {
     if (d) { var p = JSON.parse(d); if (p && p.sequences) state = p; }
   } catch(e){}
 }
+
+/* ========== Auto-resize textareas ========== */
+function autoResize(el) { el.style.height='auto'; el.style.height=el.scrollHeight+'px'; }
+function autoResizeAll() { document.querySelectorAll('.shot-row textarea').forEach(autoResize); }
 
 /* ========== Helpers ========== */
 function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
@@ -350,13 +356,30 @@ function importJSON() {
 function exportPDF() {
   var app=document.getElementById('app');
   app.classList.add('pdf-mode');
-  /* Auto-size textareas so full text shows */
-  app.querySelectorAll('textarea').forEach(function(ta){
-    ta.style.height='auto'; ta.style.height=ta.scrollHeight+'px';
+  /* Replace all form elements with plain text divs so text wraps properly */
+  app.querySelectorAll('.shot-row input[type="text"], .shot-row select, .shot-row textarea').forEach(function(el){
+    var val = '';
+    if(el.tagName==='SELECT') { val = el.options[el.selectedIndex] ? el.options[el.selectedIndex].text : ''; }
+    else if(el.tagName==='TEXTAREA') { val = el.value; }
+    else { val = el.value; }
+    var div = document.createElement('div');
+    div.className = 'pdf-text';
+    div.textContent = val;
+    if(el.style.fontWeight) div.style.fontWeight = el.style.fontWeight;
+    el.parentNode.insertBefore(div, el);
+    el.style.display = 'none';
+    el._pdfHidden = true;
   });
-  /* Remove select padding so text isn't clipped */
-  app.querySelectorAll('.shot-row select').forEach(function(sel){
-    sel.style.width='auto';sel.style.minWidth='0';
+  /* Also replace header/meta inputs */
+  app.querySelectorAll('.seq-name').forEach(function(el){
+    var div = document.createElement('div');
+    div.className = 'pdf-text';
+    div.style.fontWeight = '700';
+    div.style.fontSize = '14px';
+    div.textContent = el.value;
+    el.parentNode.insertBefore(div, el);
+    el.style.display = 'none';
+    el._pdfHidden = true;
   });
   html2pdf().set({
     margin:[6,6,6,6],
@@ -439,8 +462,8 @@ function render() {
       h+='<div class="cell"><label class="mobile-label">Angle</label><select onchange="updateField('+si+','+oi+',\'shotAngle\',this.value)">'+makeOpts(ANGLES,shot.shotAngle)+'</select></div>';
       h+='<div class="cell"><label class="mobile-label">Audio</label><select onchange="updateField('+si+','+oi+',\'audio\',this.value)">'+makeOpts(AUDIO,shot.audio)+'</select></div>';
       h+='<div class="cell"><label class="mobile-label">Subject</label><input type="text" value="'+esc(shot.subject)+'" placeholder="\u2014" onchange="updateField('+si+','+oi+',\'subject\',this.value)"></div>';
-      h+='<div class="cell cell-desc"><label class="mobile-label">Description</label><textarea onchange="updateField('+si+','+oi+',\'description\',this.value)" placeholder="Shot description\u2026">'+esc(shot.description)+'</textarea></div>';
-      h+='<div class="cell cell-dial"><label class="mobile-label">Dialogue</label><textarea onchange="updateField('+si+','+oi+',\'dialogue\',this.value)" placeholder="Dialogue\u2026">'+esc(shot.dialogue)+'</textarea></div>';
+      h+='<div class="cell cell-desc"><label class="mobile-label">Description</label><textarea oninput="autoResize(this)" onchange="updateField('+si+','+oi+',\'description\',this.value)" placeholder="Shot description\u2026">'+esc(shot.description)+'</textarea></div>';
+      h+='<div class="cell cell-dial"><label class="mobile-label">Dialogue</label><textarea oninput="autoResize(this)" onchange="updateField('+si+','+oi+',\'dialogue\',this.value)" placeholder="Dialogue\u2026">'+esc(shot.dialogue)+'</textarea></div>';
 
       h+='<div class="cell cell-ref"><label class="mobile-label">Reference</label>';
       h+='<div class="ref-cell'+(shot.refImg?' has-img':'')+'" onclick="handleRefClick('+si+','+oi+')" ondragover="refDragOver(event)" ondragleave="refDragLeave(event)" ondrop="refDrop(event,'+si+','+oi+')">';
@@ -467,6 +490,7 @@ function render() {
   h+='</div>';
 
   document.getElementById('app').innerHTML=h;
+  autoResizeAll();
 }
 
 /* ========== Init ========== */
