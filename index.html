@@ -229,8 +229,8 @@ function backupPrefix(id) { return NS + ':backup:' + id + ':'; }
    public client key and is safe to ship in a static page when the table has
    Row Level Security policies (see repo README / setup SQL).
    Leave blank to disable sharing — the app still works fully offline. */
-var SUPABASE_URL = '';        /* e.g. https://abcdxyz.supabase.co  (no trailing slash) */
-var SUPABASE_ANON_KEY = '';   /* the public anon key */
+var SUPABASE_URL = 'https://qmqirteejgovyzxrltrv.supabase.co';
+var SUPABASE_ANON_KEY = 'sb_publishable_6dMtuXvTZxg-M7MZ_ePcDA_Po0OI5wK';   /* public client key (publishable); safe in a static page thanks to RLS */
 var SHARE_TABLE = 'shotlists';
 function supabaseReady() { return !!(SUPABASE_URL && SUPABASE_ANON_KEY); }
 var SHARE_BASE = location.origin + location.pathname;
