@@ -20,7 +20,7 @@
   --radius:12px; --radius-sm:8px;
   /* 14 columns: drag | shot# | int/ext | location | size | angle | audio | subject | desc | dialogue | ref | vfx | done | actions */
   --cols: 36px 56px 64px minmax(72px,1.2fr) 72px 110px 68px minmax(72px,1.2fr) 1.5fr 1.5fr 130px 38px 44px 52px;
-  --cols-pdf: 0px 40px 46px minmax(52px,1fr) 52px 80px 48px minmax(52px,1fr) 1.4fr 1.4fr 80px 0px 0px 0px;
+  --cols-pdf: 0px 40px 46px minmax(52px,1fr) 52px 58px 48px minmax(52px,1fr) 1.4fr 1.4fr 80px 0px 0px 0px;
 }
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 html,body{background:var(--bg);color:var(--text);font-family:'Asap',-apple-system,sans-serif;font-size:16px;line-height:1.45;-webkit-font-smoothing:antialiased}
@@ -158,8 +158,10 @@ input,select,textarea,button{font-family:inherit}
 
 /* ===== PDF EXPORT MODE ===== */
 .pdf-mode .header,.pdf-mode .toolbar,.pdf-mode .row-actions,
-.pdf-mode .drag-handle,.pdf-mode .add-shot,.pdf-mode .add-seq,
+.pdf-mode .add-shot,.pdf-mode .add-seq,
 .pdf-mode .tips,.pdf-mode .done-btn,.pdf-mode .vfx-check{display:none!important}
+/* keep the drag handle in the grid (just invisible) so row cells stay aligned with the header */
+.pdf-mode .drag-handle{visibility:hidden!important;min-height:0!important}
 .pdf-mode{padding:8px!important}
 .pdf-mode .container{padding:0}
 .pdf-mode .shot-header{grid-template-columns:var(--cols-pdf)!important}
