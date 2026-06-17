@@ -167,7 +167,11 @@ input,select,textarea,button{font-family:inherit}
   grid-template-columns:var(--cols-pdf)!important;
   min-height:auto;border-left:none!important;
   align-items:start!important;
+  break-inside:avoid!important;page-break-inside:avoid!important;
+  padding:2px 0!important;
 }
+.pdf-mode .seq-header{break-inside:avoid!important;page-break-inside:avoid!important}
+.pdf-mode .shot-header{break-inside:avoid!important;page-break-inside:avoid!important}
 .pdf-mode .ref-cell{aspect-ratio:9/16;max-height:140px;width:auto;border:1px solid var(--border-lt);cursor:default;background:var(--surface2)}
 .pdf-mode .ref-cell img{object-fit:cover!important}
 .pdf-mode .ref-cell .ref-placeholder,.pdf-mode .ref-cell .ref-remove{display:none}
@@ -555,8 +559,9 @@ function exportPDF() {
     margin:[6,6,6,6],
     filename:(state.title||'shotlist').replace(/\s+/g,'_')+'.pdf',
     image:{type:'jpeg',quality:0.92},
-    html2canvas:{scale:2,useCORS:true,backgroundColor:'#fff'},
-    jsPDF:{unit:'mm',format:'a4',orientation:'landscape'}
+    html2canvas:{scale:2,useCORS:true,backgroundColor:'#fff',scrollX:0,scrollY:0,windowWidth:1180},
+    jsPDF:{unit:'mm',format:'a4',orientation:'landscape'},
+    pagebreak:{mode:['css','legacy'],avoid:['.shot-row','.seq-header','.pdf-header']}
   }).from(app).save().then(function(){ app.classList.remove('pdf-mode'); render(); });
 }
 
