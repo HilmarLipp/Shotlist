@@ -344,20 +344,24 @@ function deleteProject(id) {
 
 /* ========== Migration from legacy single-shotlist (shotlist_v2) ========== */
 function migrateIfNeeded() {
-  if (localStorage.getItem(INDEX_KEY) !== null) return;   /* already on v3 */
+  /* Ensure a v3 index exists so the picker has something to read. */
+  if (localStorage.getItem(INDEX_KEY) === null) writeIndex([]);
+  /* Self-healing migration: if the legacy single-shotlist is still present and
+     hasn't already been turned into a project, bring it in — even when an
+     index already exists (e.g. an earlier visit created an empty one and left
+     the old data stranded). Dedupe by title so repeat loads don't duplicate. */
   var old = localStorage.getItem(OLD_KEY);
-  if (old) {
-    try {
-      var p = JSON.parse(old);
-      if (p && p.sequences) {
-        var id = uniqueId(p.title);
-        localStorage.setItem(projKey(id), JSON.stringify(p));
-        upsertIndex(id, p);
-        return;
-      }
-    } catch(e){}
-  }
-  writeIndex([]);   /* establish the v3 index so we don't re-run migration */
+  if (!old) return;
+  try {
+    var p = JSON.parse(old);
+    if (!(p && p.sequences)) return;
+    var idx = readIndex();
+    var already = idx.some(function(x){ return (x.title||'') === (p.title||''); });
+    if (already) return;
+    var id = uniqueId(p.title);
+    localStorage.setItem(projKey(id), JSON.stringify(p));
+    upsertIndex(id, p);
+  } catch(e){}
 }
 
 /* ========== Navigation ========== */
